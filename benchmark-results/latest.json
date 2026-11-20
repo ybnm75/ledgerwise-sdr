@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-11-20T19:37:58.210Z",
+  "dataset": {
+    "name": "ledgerwise-replies-faafdfc1285d",
+    "version": "faafdfc1285d",
+    "cases": 20,
+    "mode": "smoke"
+  },
+  "experimentName": null,
+  "model": "gemini-3.8-flash",
+  "cost": {
+    "actualCashUsd": 0,
+    "freeTier": true,
+    "modelCalls": 0,
+    "projectedPaidRateConfigured": false
+  },
+  "latencyMs": {
+    "p50": 0.024699999999938882,
+    "p95": 0.671100000000024,
+    "maximum": 1.2872999999999593
+  },
+  "quality": {
+    "passed": 20,
+    "total": 20,
+    "passRate": 1,
+    "criticalPassed": 20,
+    "criticalTotal": 20,
+    "categories": {
+      "stop": {
+        "passed": 7,
+        "total": 7
+      },
+      "booking": {
+        "passed": 7,
+        "total": 7
+      },
+      "bot": {
+        "passed": 6,
+        "total": 6
+      }
+    }
+  },
+  "release": {
+    "passed": true,
+    "blockers": []
+  },
+  "limits": {
+    "langSmithBaseTraceCeiling": 4500,
+    "scheduledRunsPerMonth": 4,
+    "maximumBenchmarkCasesPerRun": 150
+  }
+}

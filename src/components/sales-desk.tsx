@@ -2,6 +2,8 @@
 
 import {
   CalendarDays,
+  History,
+  LayoutDashboard,
   Check,
   ChevronLeft,
   ExternalLink,
@@ -18,26 +20,33 @@ import type { DraftStatus, Lead } from "@/lib/types";
 import { qualificationBand } from "@/lib/qualification";
 import { ConversationDesk } from "@/components/conversation-desk";
 import { BookingDesk } from "@/components/booking-desk";
+import { LogoutButton } from "@/components/logout-button";
+import { TodayDesk } from "@/components/today-desk";
+import { ActivityDesk } from "@/components/activity-desk";
+import { ResearchStatus } from "@/components/research-status";
 
-type View = "leads" | "outreach" | "conversations" | "bookings";
+type View = "today" | "research" | "outreach" | "conversations" | "bookings" | "activity";
 
 const navigation: Array<{ id: View; label: string; icon: typeof Inbox }> = [
-  { id: "leads", label: "Leads", icon: UserRoundCheck },
+  { id: "today", label: "Today", icon: LayoutDashboard },
+  { id: "research", label: "Research", icon: UserRoundCheck },
   { id: "outreach", label: "Outreach", icon: Inbox },
   { id: "conversations", label: "Conversations", icon: MessageSquareText },
-  { id: "bookings", label: "Bookings", icon: CalendarDays }
+  { id: "bookings", label: "Bookings", icon: CalendarDays },
+  { id: "activity", label: "Activity", icon: History }
 ];
 
 export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
   const [leads, setLeads] = useState(initialLeads);
   const [selectedId, setSelectedId] = useState(initialLeads[0]?.id ?? "");
-  const [view, setView] = useState<View>("leads");
+  const [view, setView] = useState<View>("today");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState(false);
   const [notice, setNotice] = useState("");
   const [recipient, setRecipient] = useState("");
   const [sending, setSending] = useState(false);
   const [mobileDetail, setMobileDetail] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -63,7 +72,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
       const response = await fetch(`/api/leads/${selected.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, subject: selected.draft.subject, body: selected.draft.body })
+        body: JSON.stringify({ status, subject: selected.draft.subject, body: selected.draft.body, evidenceIds: selected.evidence.map((item) => item.id) })
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "The update was not saved.");
@@ -79,9 +88,31 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
     if (!selected) return;
     setLeads((current) =>
       current.map((lead) =>
-        lead.id === selected.id ? { ...lead, draft: { ...lead.draft, body } } : lead
+        lead.id === selected.id ? { ...lead, draft: { ...lead.draft, body, status: "pending" } } : lead
       )
     );
+  }
+
+  function updateSubject(subject: string) {
+    if (!selected) return;
+    setLeads((current) => current.map((lead) => lead.id === selected.id ? { ...lead, draft: { ...lead.draft, subject, status: "pending" } } : lead));
+  }
+
+  async function generateDraft() {
+    if (!selected) return;
+    setGenerating(true);
+    setNotice("");
+    try {
+      const response = await fetch(`/api/leads/${selected.id}/drafts/generate`, { method: "POST" });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? "The draft could not be generated.");
+      setLeads((current) => current.map((lead) => lead.id === selected.id ? { ...lead, draft: { subject: body.data.subject, body: body.data.body, status: body.data.status } } : lead));
+      setNotice(`Agent draft revision ${body.data.version} is ready for review.`);
+    } catch (caught) {
+      setNotice(caught instanceof Error ? caught.message : "The draft could not be generated.");
+    } finally {
+      setGenerating(false);
+    }
   }
 
   async function sendApproved() {
@@ -113,7 +144,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
         </a>
         <div className="topbar__actions">
           <span className="policy-state" role="status"><ShieldCheck size={16} aria-hidden="true" /> Policy active</span>
-          <span className="account-status">Sales team</span>
+          <LogoutButton />
         </div>
       </header>
 
@@ -135,12 +166,12 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
       </nav>
 
       <main id="main" className="workspace">
-        {view === "leads" || view === "outreach" ? (
+        {view === "today" ? <TodayDesk leads={leads} onNavigate={(target) => setView(target)} /> : view === "research" || view === "outreach" ? (
           <>
             <section className="queue" aria-label="Lead queue" data-mobile-hidden={mobileDetail}>
               <div className="queue__header">
                 <div>
-                  <h1>{view === "leads" ? "Evidence queue" : "Approval queue"}</h1>
+                  <h1>{view === "research" ? "Evidence queue" : "Approval queue"}</h1>
                   <p>{filtered.length} sourced companies</p>
                 </div>
                 <label className="search-field">
@@ -155,6 +186,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                   />
                 </label>
               </div>
+              {view === "research" ? <ResearchStatus /> : null}
 
               <div className="lead-list" role="list" aria-label="Companies">
                 {filtered.length ? filtered.map((lead) => (
@@ -241,7 +273,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                     </div>
                     <label className="field">
                       <span>Subject</span>
-                      <input value={selected.draft.subject} readOnly={!editing} aria-readonly={!editing} />
+                      <input value={selected.draft.subject} readOnly={!editing} aria-readonly={!editing} onChange={(event) => updateSubject(event.target.value)} />
                     </label>
                     <label className="field field--grow">
                       <span>Message</span>
@@ -256,8 +288,12 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                       <ShieldCheck size={17} aria-hidden="true" />
                       <p><strong>Grounding check passed.</strong> Company-specific claims map to evidence shown on the left.</p>
                     </div>
+                    <button className="button button--quiet" type="button" onClick={generateDraft} disabled={generating} aria-busy={generating}>
+                      {generating ? "Generating…" : "Generate from verified evidence"}
+                    </button>
                     {selected.draft.status === "approved" ? (
                       <div className="send-panel">
+                        <p className="sandbox-label">Demo delivery mode · only the configured test recipient is allowed.</p>
                         <label className="field">
                           <span>Verified recipient email</span>
                           <input
@@ -293,7 +329,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
               </section>
             ) : null}
           </>
-        ) : view === "conversations" ? <ConversationDesk /> : <BookingDesk />}
+        ) : view === "conversations" ? <ConversationDesk /> : view === "bookings" ? <BookingDesk /> : <ActivityDesk />}
       </main>
     </div>
   );

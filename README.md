@@ -1,31 +1,63 @@
 # Ledgerwise Sales Desk
 
-An audit-first AI SDR workspace built for the Unscale AI Engineer case study. It gives a non-technical sales team one place to review sourced ecommerce leads, approve grounded outreach, supervise replies, stop contact immediately, and book calls against live calendar availability.
+An audit-first AI SDR workspace for the Unscale AI Engineer case study. It researches ecommerce companies on a schedule, qualifies them with visible evidence, drafts grounded outreach, supervises replies, stops contact immediately, and books against a real calendar while keeping a salesperson in control.
 
-## What works
+## Product boundary
 
-- 30 real ecommerce companies with linked commerce and trigger sources.
-- Transparent qualification rationale and explicit research gaps.
-- Evidence-grounded first-email drafts with approve, edit, reject, and send controls.
-- A hard approval gate before email delivery.
-- Deterministic stop, unsubscribe, bot-identity, booking-intent, and price rules.
-- Structured OpenAI Responses API decisions for replies outside the hard-rule layer.
-- Automatic human handoff below 0.8 confidence or after a policy failure.
-- Cal.com v2 live availability and booking adapters.
-- LibSQL/Turso persistence for approvals, suppressions, bookings, and audit events.
-- Responsive, keyboard-accessible sales UI.
+- First outreach always requires human approval.
+- Safe replies may be automatic only above the confidence threshold and after deterministic policy checks.
+- Stop requests, bot disclosure, approval, suppression, pricing, and calendar truth never depend on model judgment alone.
+- The live review build uses a clearly labeled Demo Inbox and sandbox email recipient. It does not conduct a real cold-email campaign.
 
-## Architecture
+## Workflow
 
 ```text
-Research evidence -> deterministic score -> grounded draft -> human approval -> email provider
-                                                        |
-Prospect reply -> hard policy rules -> structured model decision -> reply / slots / handoff
-                     |                      |
-                 suppression            audit event
+Scheduled research -> exact source excerpts -> deterministic qualification
+                                              |
+                                              v
+Grounded draft -> edit/reject/approve exact revision -> sandbox delivery
+                                              |
+Inbound demo reply -> hard rules -> structured Gemini decision -> reply / handoff / scheduling
+                           |                                |
+                       suppression                     audit event
 ```
 
-The model is never the only enforcement layer. Explicit stop language, bot questions, calendar intent, price language, approval state, and suppression state are checked in application code.
+## What is implemented
+
+- Versioned SQL migrations and durable LibSQL/Turso persistence.
+- Signed HTTP-only reviewer sessions, origin checks, login throttling, and security headers.
+- Weekly/manual GitHub Actions research pipeline capped at 40 companies, five pages per company, and 800 Firecrawl credits.
+- Firecrawl v2 with a direct-fetch fallback and private-network/SSRF rejection.
+- Gemini structured extraction; excerpts are stored only when they occur in the captured source text.
+- Deterministic qualification with mandatory evidence gates and visible gaps.
+- Immutable outreach revisions; editing changes the content hash and requires a new approval.
+- Sandbox-only Resend delivery with persisted idempotency and failure states.
+- Persistent Demo Inbox, rules-first replies, human ownership, suppression, and duplicate-message protection.
+- Google Calendar free/busy calculation, working hours, buffers, minimum notice, DST handling, availability recheck, and idempotent event creation.
+- Today, Research, Outreach, Conversations, Bookings, and Activity operator screens.
+- LangSmith-compatible 150-case reply benchmark with latency, safety, quality, and zero-cash cost reporting.
+- Public health status, CI verification, scheduled research, and scheduled benchmark workflows.
+
+## Honest current state
+
+The code paths and missing-credential failures are implemented and tested locally. Live Gemini, Firecrawl, Turso Cloud, Google Calendar, LangSmith, and Resend sandbox calls still require the account owner’s free credentials. Until those are configured and the full 150-case experiment runs, the app must not claim that provider-level production verification is complete.
+
+The repository includes 30 real-company candidates as a reproducible fallback. They are not automatically labeled qualified: missing revenue, employee count, or decision-maker evidence remains visible.
+
+## Zero-cost stack
+
+| Capability | Service |
+| --- | --- |
+| Application | Vercel Hobby |
+| Repository, CI, schedules | GitHub Free and Actions |
+| Database | Turso Free |
+| Model | Gemini Developer API Free Tier |
+| Web extraction | Firecrawl Free Tier plus direct HTTP fallback |
+| Calendar | Google Calendar API |
+| Test delivery | Resend Free sandbox |
+| Evaluation | LangSmith Developer |
+
+The application has hard internal quotas and no paid overage path. A real commercial client deployment would require appropriate commercial plans, privacy terms, authentication, and outreach-compliance review.
 
 ## Local setup
 
@@ -34,52 +66,39 @@ Requirements: Node.js 22 and npm.
 ```bash
 npm install
 copy .env.example .env.local
+npm run db:migrate
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. Without `.env.local`, local development uses reviewer password `ledgerwise-demo` and a local database. External providers fail closed.
 
-The UI and deterministic policy tests work without external credentials. Missing production credentials fail closed: no email is sent, no booking is invented, and uncertain replies go to a human.
+## Commands
+
+```bash
+npm run db:migrate       # Apply versioned migrations
+npm run research         # Run capped research pipeline; provider keys required
+npm run benchmark:smoke  # 20 deterministic safety cases
+npm run benchmark        # Full 150-case model experiment
+npm run check            # TypeScript, unit tests, production build
+```
 
 ## Environment
 
-| Variable | Purpose |
-| --- | --- |
-| `TURSO_DATABASE_URL` | Persistent LibSQL database URL. `file:local.db` works locally. |
-| `TURSO_AUTH_TOKEN` | Turso authentication token. |
-| `OPENAI_API_KEY` | Reply classification and drafting. |
-| `OPENAI_MODEL` | Defaults to `gpt-6.2-sol`. |
-| `CALCOM_API_KEY` | Creates real bookings. |
-| `CALCOM_EVENT_TYPE_ID` | Reads availability for the Ledgerwise call type. |
-| `RESEND_API_KEY` | Sends only human-approved outreach. |
-| `EMAIL_FROM` | Sender on a Resend-verified domain. |
+Copy [.env.example](./.env.example). Production requires durable Turso credentials, a unique reviewer password, and a random signing secret. Each external adapter has its own documented key. No secret belongs in the repository, browser, audit payload, trace, or session export.
 
 ## Verification
 
-```bash
-npm run typecheck
-npm test
-npm run build
-```
+Current credential-free result:
 
-Current result: 34 tests pass. The Hallmark app-scope static and browser render tiers also pass at 375, 1280, 1440, and 1920 pixels with no failures, reflex findings, or warnings.
+- 40 unit and policy tests pass.
+- All six migrations apply to an empty in-memory database.
+- TypeScript passes.
+- The optimized Next.js production build passes.
+- The deterministic benchmark passes 20/20 cases.
+- Dependency audit reports zero known vulnerabilities.
+- Authentication smoke test: unauthenticated 401, signed login cookie, protected 200.
+- Conversation smoke test: bot disclosure, suppression, human takeover, and handoff all pass.
 
-## Production deployment
+Full provider verification and the 150-case LangSmith result remain deployment gates, not assumed successes.
 
-1. Create a Turso database and set its URL and token.
-2. Create a Cal.com event type, connect the host calendar, and set its API key and event type ID.
-3. Verify a sending domain in Resend and set `EMAIL_FROM`.
-4. Add an OpenAI API key and the configured model.
-5. Import the repository into Vercel, add the environment variables, and deploy.
-6. Exercise one approval, one stop reply, one bot question, one live slot fetch, one test booking, and one test-domain email before sharing the URL.
-
-For a client deployment, add organisation authentication and use a Vercel Pro or equivalent commercial hosting plan. The case-study build is public by design so reviewers do not need credentials.
-
-## Honest limitations
-
-- Employee count, revenue band, and a named decision-maker are deliberately shown as gaps when the public research did not establish them. The agent must not turn assumptions into facts.
-- The repository ships no secrets. OpenAI, Cal.com, Resend, Turso, Vercel, and GitHub must be connected by the account owner.
-- The included research dataset is a case-study seed. A production researcher should refresh evidence on a schedule and store page snapshots or hashes for traceability.
-- Cold outreach must be reviewed for applicable consent, identification, and unsubscribe requirements before real sending.
-
-See [HOW_I_WORKED.md](./HOW_I_WORKED.md), [ARCHITECTURE.md](./ARCHITECTURE.md), and [LOOM_SCRIPT.md](./LOOM_SCRIPT.md).
+See [ARCHITECTURE.md](./ARCHITECTURE.md), [BENCHMARK.md](./BENCHMARK.md), [DEPLOYMENT.md](./DEPLOYMENT.md), [HOW_I_WORKED.md](./HOW_I_WORKED.md), and [LOOM_SCRIPT.md](./LOOM_SCRIPT.md).

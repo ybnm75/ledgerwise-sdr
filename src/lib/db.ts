@@ -1,54 +1,29 @@
 import { createClient, type Client } from "@libsql/client";
 import { randomUUID } from "node:crypto";
+import { runtimeEnvironment } from "@/lib/env";
 
 let client: Client | null = null;
 let ready: Promise<void> | null = null;
 
-function getClient() {
+export function getDatabase() {
   if (client) return client;
-  const url = process.env.TURSO_DATABASE_URL ?? "file:local.db";
-  client = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN || undefined });
+  const environment = runtimeEnvironment();
+  client = createClient({ url: environment.TURSO_DATABASE_URL, authToken: environment.TURSO_AUTH_TOKEN });
   return client;
 }
 
 export function ensureDatabase() {
   if (ready) return ready;
-  const db = getClient();
-  ready = db.batch([
-    `CREATE TABLE IF NOT EXISTS lead_state (
-      id TEXT PRIMARY KEY,
-      draft_status TEXT NOT NULL,
-      draft_subject TEXT NOT NULL,
-      draft_body TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )`,
-    `CREATE TABLE IF NOT EXISTS audit_events (
-      id TEXT PRIMARY KEY,
-      entity_type TEXT NOT NULL,
-      entity_id TEXT NOT NULL,
-      action TEXT NOT NULL,
-      payload_json TEXT NOT NULL,
-      created_at TEXT NOT NULL
-    )`,
-    `CREATE INDEX IF NOT EXISTS audit_entity_idx ON audit_events(entity_type, entity_id, created_at)`,
-    `CREATE TABLE IF NOT EXISTS suppressions (
-      id TEXT PRIMARY KEY,
-      company TEXT NOT NULL,
-      contact_key TEXT NOT NULL UNIQUE,
-      reason TEXT NOT NULL,
-      created_at TEXT NOT NULL
-    )`,
-    `CREATE TABLE IF NOT EXISTS bookings (
-      id TEXT PRIMARY KEY,
-      company TEXT NOT NULL,
-      attendee_name TEXT NOT NULL,
-      attendee_email TEXT NOT NULL,
-      starts_at TEXT NOT NULL,
-      provider_uid TEXT,
-      status TEXT NOT NULL,
-      created_at TEXT NOT NULL
-    )`
-  ], "write").then(() => undefined);
+  const db = getDatabase();
+  ready = db.execute("SELECT version FROM schema_migrations WHERE version = 6 LIMIT 1")
+    .then((result) => {
+      if (!result.rows.length) throw new Error("Database migrations are incomplete. Run npm run db:migrate.");
+    })
+    .catch((error) => {
+      ready = null;
+      if (error instanceof Error && error.message.includes("Database migrations")) throw error;
+      throw new Error("Database schema is unavailable. Run npm run db:migrate.");
+    });
   return ready;
 }
 
@@ -57,9 +32,10 @@ export async function saveLeadDraft(input: {
   status: "pending" | "approved" | "rejected";
   subject: string;
   body: string;
+  actor?: { type: string; id: string };
 }) {
   await ensureDatabase();
-  const db = getClient();
+  const db = getDatabase();
   const now = new Date().toISOString();
   await db.batch([
     {
@@ -73,9 +49,9 @@ export async function saveLeadDraft(input: {
       args: [input.id, input.status, input.subject, input.body, now]
     },
     {
-      sql: `INSERT INTO audit_events (id, entity_type, entity_id, action, payload_json, created_at)
-            VALUES (?, 'lead', ?, ?, ?, ?)`,
-      args: [randomUUID(), input.id, `draft.${input.status}`, JSON.stringify({ subject: input.subject }), now]
+      sql: `INSERT INTO audit_events (id, entity_type, entity_id, action, payload_json, created_at, actor_type, actor_id)
+            VALUES (?, 'lead', ?, ?, ?, ?, ?, ?)`,
+      args: [randomUUID(), input.id, `draft.${input.status}`, JSON.stringify({ subject: input.subject }), now, input.actor?.type ?? "system", input.actor?.id ?? "system"]
     }
   ], "write");
   return { updatedAt: now };
@@ -83,7 +59,7 @@ export async function saveLeadDraft(input: {
 
 export async function getLeadDraft(id: string) {
   await ensureDatabase();
-  const result = await getClient().execute({
+  const result = await getDatabase().execute({
     sql: `SELECT id, draft_status, draft_subject, draft_body, updated_at FROM lead_state WHERE id = ? LIMIT 1`,
     args: [id]
   });
@@ -92,7 +68,7 @@ export async function getLeadDraft(id: string) {
 
 export async function listAuditEvents(entityId: string) {
   await ensureDatabase();
-  const result = await getClient().execute({
+  const result = await getDatabase().execute({
     sql: `SELECT id, action, payload_json, created_at FROM audit_events
           WHERE entity_id = ? ORDER BY created_at DESC LIMIT 50`,
     args: [entityId]
@@ -100,20 +76,20 @@ export async function listAuditEvents(entityId: string) {
   return result.rows;
 }
 
-export async function saveSuppression(input: { company: string; contactKey: string; reason: string }) {
+export async function saveSuppression(input: { company: string; contactKey: string; reason: string; threadId?: string; triggeringMessageId?: string }) {
   await ensureDatabase();
   const now = new Date().toISOString();
-  await getClient().execute({
-    sql: `INSERT INTO suppressions (id, company, contact_key, reason, created_at)
-          VALUES (?, ?, ?, ?, ?)
-          ON CONFLICT(contact_key) DO UPDATE SET reason = excluded.reason`,
-    args: [randomUUID(), input.company, input.contactKey, input.reason, now]
+  await getDatabase().execute({
+    sql: `INSERT INTO suppressions (id, company, contact_key, reason, created_at, thread_id, triggering_message_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(contact_key) DO UPDATE SET reason=excluded.reason, thread_id=excluded.thread_id, triggering_message_id=excluded.triggering_message_id`,
+    args: [randomUUID(), input.company, input.contactKey, input.reason, now, input.threadId ?? null, input.triggeringMessageId ?? null]
   });
 }
 
 export async function isSuppressed(contactKey: string) {
   await ensureDatabase();
-  const result = await getClient().execute({
+  const result = await getDatabase().execute({
     sql: `SELECT id FROM suppressions WHERE contact_key = ? LIMIT 1`,
     args: [contactKey]
   });
@@ -125,13 +101,31 @@ export async function recordAuditEvent(input: {
   entityId: string;
   action: string;
   payload: unknown;
+  actor?: { type: string; id: string };
 }) {
   await ensureDatabase();
   const now = new Date().toISOString();
-  await getClient().execute({
-    sql: `INSERT INTO audit_events (id, entity_type, entity_id, action, payload_json, created_at)
-          VALUES (?, ?, ?, ?, ?, ?)`,
-    args: [randomUUID(), input.entityType, input.entityId, input.action, JSON.stringify(input.payload), now]
+  await getDatabase().execute({
+    sql: `INSERT INTO audit_events (id, entity_type, entity_id, action, payload_json, created_at, actor_type, actor_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [randomUUID(), input.entityType, input.entityId, input.action, JSON.stringify(input.payload), now, input.actor?.type ?? "system", input.actor?.id ?? "system"]
+  });
+}
+
+export async function recordProviderUsage(input: {
+  provider: string;
+  operation: string;
+  units: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  latencyMs: number;
+  runId?: string;
+}) {
+  await ensureDatabase();
+  await getDatabase().execute({
+    sql: `INSERT INTO provider_usage (id, run_id, provider, operation, units, input_tokens, output_tokens, latency_ms, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [randomUUID(), input.runId ?? null, input.provider, input.operation, input.units, input.inputTokens ?? 0, input.outputTokens ?? 0, input.latencyMs, new Date().toISOString()]
   });
 }
 
@@ -141,12 +135,23 @@ export async function saveBooking(input: {
   attendeeEmail: string;
   startsAt: string;
   providerUid?: string;
+  attendeeTimeZone?: string;
+  threadId?: string;
+  eventUrl?: string;
+  idempotencyKey?: string;
 }) {
   await ensureDatabase();
   const now = new Date().toISOString();
-  await getClient().execute({
-    sql: `INSERT INTO bookings (id, company, attendee_name, attendee_email, starts_at, provider_uid, status, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, 'confirmed', ?)`,
-    args: [randomUUID(), input.company, input.attendeeName, input.attendeeEmail, input.startsAt, input.providerUid ?? null, now]
+  await getDatabase().execute({
+    sql: `INSERT INTO bookings (id, company, attendee_name, attendee_email, starts_at, provider_uid, status, created_at, attendee_time_zone, thread_id, event_url, idempotency_key)
+          VALUES (?, ?, ?, ?, ?, ?, 'confirmed', ?, ?, ?, ?, ?)`,
+    args: [randomUUID(), input.company, input.attendeeName, input.attendeeEmail, input.startsAt, input.providerUid ?? null, now, input.attendeeTimeZone ?? null, input.threadId ?? null, input.eventUrl ?? null, input.idempotencyKey ?? null]
   });
+}
+
+export async function listBookings() {
+  await ensureDatabase();
+  const result = await getDatabase().execute(`SELECT id, company, attendee_name, attendee_email, starts_at, provider_uid, status, attendee_time_zone, thread_id, event_url, created_at
+    FROM bookings WHERE status='confirmed' ORDER BY starts_at ASC`);
+  return result.rows;
 }

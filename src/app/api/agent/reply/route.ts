@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { draftReply } from "@/lib/agent";
 import { recordAuditEvent, saveSuppression } from "@/lib/db";
+import { requireApiSession } from "@/lib/auth";
 
 const Input = z.object({
   message: z.string().min(1).max(5000),
@@ -11,6 +12,8 @@ const Input = z.object({
 });
 
 export async function POST(request: Request) {
+  const auth = requireApiSession(request, { mutation: true });
+  if (auth.response) return auth.response;
   const parsed = Input.safeParse(await request.json());
   if (!parsed.success) {
     return Response.json({ error: "The reply payload is invalid.", details: parsed.error.flatten() }, { status: 400 });
@@ -19,7 +22,7 @@ export async function POST(request: Request) {
   try {
     const result = await draftReply(parsed.data);
     if (parsed.data.threadId) {
-      await recordAuditEvent({ entityType: "thread", entityId: parsed.data.threadId, action: `agent.${result.action}`, payload: result });
+      await recordAuditEvent({ entityType: "thread", entityId: parsed.data.threadId, action: `agent.${result.action}`, payload: result, actor: { type: "human", id: auth.session.sub } });
     }
     if (result.action === "suppress" && parsed.data.contactKey) {
       await saveSuppression({ company: parsed.data.company, contactKey: parsed.data.contactKey, reason: result.reason });

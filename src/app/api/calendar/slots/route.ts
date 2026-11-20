@@ -1,6 +1,9 @@
 import { getAvailableSlots } from "@/lib/calendar";
+import { requireApiSession } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = requireApiSession(request);
+  if (auth.response) return auth.response;
   try {
     const slots = await getAvailableSlots();
     return Response.json({ data: slots });

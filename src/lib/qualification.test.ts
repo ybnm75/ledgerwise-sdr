@@ -14,12 +14,12 @@ const evidence = (kind: Evidence["kind"]): Evidence => ({
 
 describe("qualification", () => {
   it("counts each evidence class once", () => {
-    expect(scoreEvidence([evidence("commerce"), evidence("commerce"), evidence("trigger")])).toBe(55);
+    expect(scoreEvidence([evidence("commerce"), evidence("commerce"), evidence("trigger")])).toBe(40);
   });
 
   it("maps thresholds to review bands", () => {
-    expect(qualificationBand(75)).toBe("Strong fit");
-    expect(qualificationBand(55)).toBe("Review");
-    expect(qualificationBand(54)).toBe("Research needed");
+    expect(qualificationBand(80)).toBe("Strong fit");
+    expect(qualificationBand(60)).toBe("Review");
+    expect(qualificationBand(59)).toBe("Research needed");
   });
 });

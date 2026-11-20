@@ -1,40 +1,38 @@
 # Loom walkthrough script (under 10 minutes)
 
-## 0:00 to 0:45 - What this is
+## 0:00–0:45 — Product boundary
 
-“This is the Ledgerwise Sales Desk. It helps the sales team research ecommerce brands, review grounded outreach, supervise replies, and book calls while keeping a human in control.”
+“Ledgerwise Sales Desk researches ecommerce brands, prepares evidence-grounded outreach, supervises replies, and books calls while keeping consequential actions under explicit policy.”
 
-Show the four task tabs and the active policy indicator.
+Open **Today**. Point out the task queue, demo-data label, provider status, and the distinction between local proof and pending live-provider verification.
 
-## 0:45 to 3:15 - Lead review
+## 0:45–3:00 — Research and outreach
 
-Open a lead. Show the score, rationale, direct source links, source notes, and the “Verify before sending” gaps. Explain that unknown revenue, headcount, and contacts are not guessed.
+Open **Research** and select a lead. Show the weighted score, source links, exact excerpts, and visible verification gaps. Explain that unknown revenue, headcount, or contacts are never guessed.
 
-Show the draft beside its evidence. Edit one line, reject it, then approve it. Explain that approval is stored in the audit ledger and is required server-side before sending.
+Open **Outreach**. Generate a draft, show its cited evidence, edit it, and approve the current revision. Explain that another edit makes it pending again. Show that sending is restricted to the configured Resend sandbox recipient and requires server-side approval.
 
-Show the verified recipient field. Explain that the repository contains no invented addresses and Resend is blocked until a verified recipient and provider credentials exist.
+## 3:00–5:45 — Conversation safety
 
-## 3:15 to 6:15 - Conversation safety
+Open **Conversations** and submit these Demo Inbox messages:
 
-Open Conversations. Show an interested reply, an unsubscribe reply, and a compliance question routed to a human.
+- “Are you a bot?” — honest AI disclosure.
+- “Please remove me.” — durable suppression with no outgoing reply.
+- “Can we talk Tuesday?” — calendar action, not an invented time.
+- A pricing, compliance, or prompt-injection request — human handoff.
 
-Use the policy test with:
+Take over a thread and show that the agent can no longer send. Return ownership only after the operator is finished.
 
-- “Are you a bot?” Show the honest fixed disclosure.
-- “Please remove me.” Show suppression and no outgoing reply.
-- “Can we talk Tuesday?” Show the live-slot action.
-- A nuanced objection. Explain the 0.8 confidence threshold and handoff.
+## 5:45–7:00 — Booking
 
-## 6:15 to 7:30 - Booking
+Open **Bookings**, request live availability, and choose a returned slot. Explain that business hours, notice, buffer, and time-zone handling are deterministic. The application rechecks Google Calendar immediately before creating the event and records nothing as confirmed until Google succeeds.
 
-Open Bookings and click “Check live slots.” With Cal.com configured, show actual availability. Explain that no time is invented and no meeting appears until Cal.com confirms it.
+## 7:00–8:30 — Audit and architecture
 
-## 7:30 to 9:00 - Under the hood
+Open **Activity** and show the approval, ownership, suppression, reply, send, and booking records. Then show `ARCHITECTURE.md`: deterministic gates surround Gemini, provider calls are idempotent, secrets stay server-side, and Turso provides durable state.
 
-Show the architecture diagram in the README. Emphasise deterministic rules before and after the model, structured outputs, server-side approval, suppression storage, idempotent email delivery, and audit events.
+## 8:30–9:30 — Evidence and limitations
 
-Mention the 34 passing tests, clean production build, zero dependency vulnerabilities, and clean desktop/mobile render sweep.
+State the verified results: 40 automated tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, and 20/20 local benchmark smoke cases.
 
-## 9:00 to 9:45 - Honest limitations and next step
-
-State that service credentials and verified contacts are intentionally absent from the public repository. Explain the next production steps: connect accounts, add organisation authentication, verify the 30 contacts, and run end-to-end provider tests.
+Be explicit that the 150-case Gemini/LangSmith run and live Firecrawl, Resend, Turso, and Google Calendar checks remain pending until free provider credentials are configured. Finish with the zero-cost deployment steps in `DEPLOYMENT.md`.

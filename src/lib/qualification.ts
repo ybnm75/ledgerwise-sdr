@@ -1,10 +1,11 @@
 import type { Evidence } from "@/lib/types";
 
 const weights: Record<Evidence["kind"], number> = {
-  commerce: 25,
+  commerce: 20,
   location: 15,
   size: 20,
-  trigger: 30,
+  revenue: 15,
+  trigger: 20,
   contact: 10
 };
 
@@ -14,7 +15,7 @@ export function scoreEvidence(evidence: Evidence[]) {
 }
 
 export function qualificationBand(score: number) {
-  if (score >= 75) return "Strong fit";
-  if (score >= 55) return "Review";
+  if (score >= 80) return "Strong fit";
+  if (score >= 60) return "Review";
   return "Research needed";
 }

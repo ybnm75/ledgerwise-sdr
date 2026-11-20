@@ -1,32 +1,34 @@
 # Ledgerwise delivery plan
 
-## Outcome
+## Delivered locally
 
-A deployed sales workspace where Ledgerwise can inspect sourced leads, understand qualification scores, approve or edit outreach, take over conversations, and see calendar bookings. AI actions are constrained by explicit policy and written to an audit trail.
+- Authenticated operator workspace with Today, Research, Outreach, Conversations, Bookings, and Activity views.
+- Scheduled 30-company research pipeline with source validation and deterministic qualification.
+- Evidence-bound, immutable draft revisions with edit and approval controls.
+- Resend sandbox delivery with qualification, approval, suppression, recipient, and idempotency gates.
+- Persistent Demo Inbox, deterministic reply policies, Gemini routing, and enforced human ownership.
+- Google Calendar free/busy slots and idempotent event creation.
+- Turso-compatible migrations, health check, audit trail, security headers, and rate limiting.
+- A 150-case LangSmith-compatible benchmark plus a credential-free smoke suite.
+- GitHub Actions workflows for CI, research, and benchmark execution.
 
-## Build order
+## Non-negotiable release gates
 
-1. Lead workbench: sourced evidence, deterministic qualification, grounded draft, approve/edit/reject.
-2. Conversation desk: intent classification, safe response drafting, stop-list enforcement, human handoff.
-3. Booking: Cal.com availability adapter and booking flow with a local test double.
-4. Persistence and access: LibSQL/Turso data layer, seed data, shared-password demo login.
-5. Verification: policy unit tests, 30-reply evaluation set, accessibility and production build checks.
-6. Delivery: deploy, public repository, HOW_I_WORKED.md, walkthrough script, session export checklist.
+- No unsourced company claim or invented contact detail.
+- No price quote, dishonest AI denial, or invented calendar slot.
+- Stop intent produces immediate durable suppression and no reply.
+- Only the exact approved draft revision can be sent.
+- Human-owned threads cannot be answered by the agent.
+- Provider failure must remain visible and fail closed.
+- All tests, type checks, build, dependency audit, and benchmark safety gates pass.
+- Actual project cash spend remains $0.
 
-## Non-negotiable policies
+## Production path
 
-- No price quotes.
-- Every company-specific claim must cite stored evidence.
-- Stop, unsubscribe, and not-interested intents suppress all future outreach immediately.
-- Bot questions receive an honest answer.
-- Low-confidence or policy-sensitive replies are handed to a human.
-- No outbound message is sent without explicit approval in this case-study build.
+1. Create the free-tier provider projects and add secrets using `DEPLOYMENT.md`.
+2. Push the reviewed repository to GitHub.
+3. Run Turso migrations, research, and the full LangSmith benchmark.
+4. Import the GitHub repository into Vercel and deploy from `main`.
+5. Complete every production smoke-test item before sharing the reviewer URL.
 
-## Production adapters
-
-- AI: OpenAI through the AI SDK with structured Zod outputs.
-- Calendar: Cal.com API behind a narrow adapter.
-- Database: Drizzle over LibSQL/Turso.
-- Deployment target: Vercel, with environment variables documented in `.env.example`.
-
-The app has deterministic local fallbacks for development and evaluation; production integrations fail closed when credentials are absent.
+The remaining work is provider configuration and live verification, not unimplemented application logic. Production integrations never fall back to fake success.

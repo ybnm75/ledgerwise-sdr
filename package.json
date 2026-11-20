@@ -11,13 +11,17 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "db:migrate": "node scripts/migrate.mjs",
+    "research": "node scripts/research.mjs",
+    "benchmark": "tsx scripts/benchmark.ts",
+    "benchmark:smoke": "tsx scripts/benchmark.ts --smoke",
     "check": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@libsql/client": "latest",
+    "langsmith": "^0.13.1",
     "lucide-react": "latest",
     "next": "latest",
-    "openai": "^7.62.0",
     "react": "latest",
     "react-dom": "latest",
     "zod": "latest"
@@ -27,6 +31,7 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "puppeteer-core": "^25.18.1",
+    "tsx": "^4.23.15",
     "typescript": "latest",
     "vitest": "latest"
   }

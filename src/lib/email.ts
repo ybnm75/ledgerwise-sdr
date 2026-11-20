@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { enforceOutboundPolicy } from "@/lib/policy";
 
-export async function sendApprovedEmail(input: { to: string; subject: string; body: string; leadId: string }) {
+export async function sendApprovedEmail(input: { to: string; subject: string; body: string; idempotencyKey: string }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
   if (!apiKey || !from) throw new Error("The email provider is not configured.");
@@ -10,9 +10,7 @@ export async function sendApprovedEmail(input: { to: string; subject: string; bo
   if (!policy.allowed) throw new Error(`Outbound policy blocked: ${policy.violations.join(", ")}.`);
 
   const plainText = `${input.body.trim()}\n\nReply “stop” and I won’t contact you again.`;
-  const idempotencyKey = createHash("sha256")
-    .update(`${input.leadId}:${input.to}:${input.subject}:${plainText}`)
-    .digest("hex");
+  const idempotencyKey = createHash("sha256").update(input.idempotencyKey).digest("hex");
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",

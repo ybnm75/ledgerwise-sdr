@@ -1,4 +1,5 @@
 import type { Evidence, Lead } from "@/lib/types";
+import { scoreEvidence } from "@/lib/qualification";
 
 const capturedAt = "2026-11-20T10:00:00.000Z";
 const jobsUrl = "https://dtcmvp.com/jobs/?department=Finance+/+Accounting";
@@ -92,7 +93,7 @@ function draftFor(company: SeedCompany, evidence: Evidence[]) {
 
 export const seedLeads: Lead[] = companies.map((company, index) => {
   const evidence = evidenceFor(company, index);
-  const score = index < 21 ? 70 : 70;
+  const score = scoreEvidence(evidence);
   return {
     id: `lead-${String(index + 1).padStart(2, "0")}`,
     company: company.company,
