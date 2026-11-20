@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+coverage/
+.env
+.env.local
+*.log
+*.tsbuildinfo
+.DS_Store
+.vercel/
+.hallmark/screenshots/
+.hallmark/shots/
+local.db
+local.db-*
+Unscale AI Engineer Case Study.docx

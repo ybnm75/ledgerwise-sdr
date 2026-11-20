@@ -1,0 +1,15 @@
+{
+  "scope": "app",
+  "material": {
+    "real": ["Ledgerwise ICP", "five agent jobs", "sales-team controls", "five safety rules"],
+    "pictures": ["the product interface itself"],
+    "absent": ["Ledgerwise logo", "customer testimonials", "performance metrics", "production credentials"]
+  },
+  "preserved": [],
+  "introduced": ["Next.js app shell", "Coral theme", "lead evidence workbench", "audit-first agent architecture"],
+  "audience": "non-technical Ledgerwise sales team",
+  "use": "review and approve grounded outreach",
+  "tone": "restrained, operational, trustworthy",
+  "theme": "coral",
+  "genre": "modern-minimal"
+}

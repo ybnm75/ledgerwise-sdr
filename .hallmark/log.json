@@ -1,0 +1,19 @@
+[
+  {
+    "scope": "app",
+    "shape": "app screen",
+    "theme": "coral",
+    "axes": ["topbar", "task-tabs", "queue", "evidence", "approval"],
+    "hero": null,
+    "nav": "compact top bar and task tabs",
+    "footer": null,
+    "imagery": "product interface",
+    "photos": [],
+    "entry": "lead review queue",
+    "fingerprint": "app:topbar:tabs:queue-workbench:evidence-draft",
+    "sections": ["lead queue", "evidence record", "approval draft", "conversation desk", "booking ledger"],
+    "signature": "sourced lead record beside its approval draft",
+    "waived": [],
+    "prompt": "Ledgerwise AI SDR operations platform for non-technical sales teams"
+  }
+]

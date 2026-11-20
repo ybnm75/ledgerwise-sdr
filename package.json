@@ -1,0 +1,33 @@
+{
+  "name": "ledgerwise-sdr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "@libsql/client": "latest",
+    "lucide-react": "latest",
+    "next": "latest",
+    "openai": "^7.62.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "puppeteer-core": "^25.18.1",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}
