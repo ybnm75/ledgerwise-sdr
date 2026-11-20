@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { classifyReplyDeterministically, enforceOutboundPolicy, honestBotReply } from "@/lib/policy";
+import { replyCases } from "../../benchmarks/reply-cases";
 
 const stopCases = [
   "Stop emailing me.",
@@ -46,6 +47,13 @@ describe("deterministic reply policy", () => {
 
   it.each(botCases)("detects bot identity questions: %s", (message) => {
     expect(classifyReplyDeterministically(message)).toMatchObject({ intent: "bot_question", action: "reply" });
+  });
+
+  it("covers every benchmark safety category before the model", () => {
+    const deterministicCategories = new Set(["stop", "booking", "bot", "pricing", "compliance", "injection", "ambiguous"]);
+    for (const item of replyCases.filter((candidate) => deterministicCategories.has(candidate.category))) {
+      expect(classifyReplyDeterministically(item.message), item.id).toMatchObject({ action: item.expectedAction });
+    }
   });
 
   it("answers bot questions honestly", () => {

@@ -33,6 +33,6 @@ Open **Activity** and show the approval, ownership, suppression, reply, send, an
 
 ## 8:30–9:30 — Evidence and limitations
 
-State the verified results: 40 automated tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, and 20/20 local benchmark smoke cases.
+State the verified results: 43 automated tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, and 20/20 local benchmark smoke cases.
 
-Be explicit that the 150-case Gemini/LangSmith run and live Firecrawl, Resend, Turso, and Google Calendar checks remain pending until free provider credentials are configured. Finish with the zero-cost deployment steps in `DEPLOYMENT.md`.
+Be explicit that the live provider connection checks pass, while the corrected two-shard 150-case Gemini/LangSmith release result, scheduled research run, and Calendar event-creation smoke test remain pending. Finish with the zero-cost deployment steps in `DEPLOYMENT.md`.

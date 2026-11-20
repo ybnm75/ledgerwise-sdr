@@ -45,6 +45,7 @@ export async function draftReply(input: { message: string; company: string; evid
   const deterministic = classifyReplyDeterministically(input.message);
   if (deterministic?.action === "suppress") return { ...deterministic, reply: "", riskFlags: [], source: "policy" };
   if (deterministic?.intent === "bot_question") return { ...deterministic, reply: honestBotReply(), riskFlags: [], source: "policy" };
+  if (deterministic?.action === "handoff") return { ...deterministic, reply: "", riskFlags: ["policy_handoff"], source: "policy" };
   if (deterministic?.action === "offer_slots") {
     return {
       ...deterministic,

@@ -27,7 +27,7 @@
 
 1. Create the free-tier provider projects and add secrets using `DEPLOYMENT.md`.
 2. Push the reviewed repository to GitHub.
-3. Run Turso migrations, research, and the full LangSmith benchmark.
+3. Run Turso migrations, research, both LangSmith benchmark shards, and the combined release report.
 4. Import the GitHub repository into Vercel and deploy from `main`.
 5. Complete every production smoke-test item before sharing the reviewer URL.
 

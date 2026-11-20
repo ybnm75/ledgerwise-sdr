@@ -51,28 +51,33 @@ Any critical failure blocks release independently of average quality.
 
 ## LangSmith
 
-The full command creates or reuses a versioned LangSmith dataset, uploads a named experiment, attaches deterministic feedback, and saves a machine-readable local report.
+The full suite is split into two deterministic 75-case shards because the selected Gemini free tier allows 20 requests per day. Each shard contains exactly 15 model-dependent cases and a combined recovery report covers all 150 cases without making another model call.
 
 ```bash
-npm run benchmark
+node --env-file=.env.local --import tsx scripts/benchmark.ts --shard=1/2
+# Run after the provider's next daily reset:
+node --env-file=.env.local --import tsx scripts/benchmark.ts --shard=2/2
+# Combine the two LangSmith experiment names without new model calls:
+node --env-file=.env.local --import tsx scripts/benchmark.ts --combine=<experiment-1>,<experiment-2>
 ```
 
 Free-tier protections:
 
 - Developer plan only
-- 150 examples per weekly full run
-- At most four scheduled runs per month
+- 75 examples per scheduled shard and complete 150-case coverage across Monday and Tuesday
+- Exactly 15 Gemini calls per shard, leaving five daily free calls for diagnostics
+- At most eight scheduled shard runs per month
 - Evaluator tracing disabled
 - No tuned/paid evaluators, Engine, Gateway, or extended retention
 - Workspace trace ceiling configured to 4,500
 
-The application hashes benchmark message content before trace upload. Production prospect content is not sent to LangSmith by this harness.
+Only synthetic benchmark messages are stored in the LangSmith dataset. Production prospect content is not sent to LangSmith by this harness.
 
 ## Current result
 
 `npm run benchmark:smoke` executes 20 balanced deterministic cases without model credentials. Current result: 20/20 pass, with p95 below 1 ms on the local run.
 
-The full 150-case quality, model latency, token usage, and LangSmith experiment are intentionally marked pending until free Gemini, Turso, and LangSmith credentials are configured. The repository does not fabricate provider results.
+Provider connectivity is verified. An initial single-run experiment exposed two real integration defects: the raw REST adapter read an SDK-only `output_text` convenience field, and the benchmark attempted more than Gemini's 20 daily free calls. Its recovered 117/150 output is retained as diagnostic evidence, not presented as a valid model release result. The parser and fail-open reporting are fixed; the two corrected free-tier shard runs remain pending the daily quota reset.
 
 ## Cost report
 

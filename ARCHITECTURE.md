@@ -5,7 +5,7 @@
 ```text
 GitHub Actions                    Vercel
   scheduled research ----------> Next.js operator workspace
-  weekly benchmark                 authenticated route handlers
+  two-day benchmark shards        authenticated route handlers
           |                                  |
           +---------------- Turso -----------+
                               |
@@ -107,8 +107,8 @@ This shared account is intentionally limited to the case-study review. A real or
 - Maximum 40 research companies and five pages each.
 - Maximum 800 Firecrawl credits per research run.
 - 500 internal Gemini calls per 30-day operation window.
-- Weekly research and benchmark schedules.
-- LangSmith experiment size capped at 150 examples and workspace target capped at 4,500 traces.
+- Weekly research plus Monday/Tuesday benchmark shard schedules.
+- LangSmith shard size capped at 75 examples, Gemini calls capped below 20 per shard, and workspace target capped at 4,500 traces.
 - Resend restricted to one configured test address.
 - No automatic paid-overage configuration.
 

@@ -37,7 +37,7 @@ Public sources also could not reliably prove revenue, headcount, and named conta
 
 ## Validation performed
 
-- 40 automated tests pass across authentication, qualification, policy, and calendar behavior.
+- 43 automated tests pass across authentication, qualification, provider parsing, policy, and calendar behavior.
 - All six migrations apply to a fresh in-memory database.
 - TypeScript and the optimized Next.js production build pass.
 - The local 20-case benchmark smoke suite passes 20/20.
@@ -45,18 +45,18 @@ Public sources also could not reliably prove revenue, headcount, and named conta
 - Runtime smoke tests verified login protection, signed sessions, persistent threads, suppression, ownership, and safe reply routing.
 - Missing production credentials fail closed rather than simulating success.
 
-The full 150-case Gemini/LangSmith run, live research ingestion, Resend delivery, Turso persistence, and Google Calendar booking remain pending until the free provider credentials are configured. No live-provider result is claimed without that evidence.
+Turso persistence, Gemini access, Firecrawl scraping, Resend delivery, Google Calendar availability, and LangSmith authentication have been verified with the free provider accounts. The corrected two-shard 150-case experiment, live research ingestion, and event-creation smoke test remain pending. No provider result is claimed without evidence.
 
 ## Cost and privacy
 
 Current cash spend is **$0**. The target configuration uses free tiers for Vercel, Turso, Gemini, Firecrawl, Resend sandbox, Google Calendar, GitHub Actions, and LangSmith Developer. This is appropriate for the case-study workload, not an unlimited production SLA.
 
-The benchmark hashes message content before uploading trace inputs. The repository contains no provider secrets, invented customer emails, or private prospect conversations. A real commercial rollout would require organization-level authentication, jurisdiction-specific outreach review, data-processing agreements, monitoring, and a paid-capacity decision.
+The LangSmith dataset contains only synthetic benchmark messages. The repository contains no provider secrets, invented customer emails, or private prospect conversations. A real commercial rollout would require organization-level authentication, jurisdiction-specific outreach review, data-processing agreements, monitoring, and a paid-capacity decision.
 
 ## Next production steps
 
 1. Configure the free provider accounts and secrets described in `DEPLOYMENT.md`.
 2. Run migrations against Turso and execute one scheduled research run.
-3. Run the full 150-case benchmark and investigate every release-gate failure.
+3. Run both free-tier benchmark shards, combine their 150 results, and investigate every release-gate failure.
 4. Deploy to Vercel and complete the provider smoke test.
 5. Verify real contacts before allowing any outreach beyond the configured sandbox recipient.

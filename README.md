@@ -35,12 +35,12 @@ Inbound demo reply -> hard rules -> structured Gemini decision -> reply / handof
 - Persistent Demo Inbox, rules-first replies, human ownership, suppression, and duplicate-message protection.
 - Google Calendar free/busy calculation, working hours, buffers, minimum notice, DST handling, availability recheck, and idempotent event creation.
 - Today, Research, Outreach, Conversations, Bookings, and Activity operator screens.
-- LangSmith-compatible 150-case reply benchmark with latency, safety, quality, and zero-cash cost reporting.
+- LangSmith-compatible 150-case reply benchmark, split into two 75-case free-tier shards, with latency, safety, quality, and zero-cash cost reporting.
 - Public health status, CI verification, scheduled research, and scheduled benchmark workflows.
 
 ## Honest current state
 
-The code paths and missing-credential failures are implemented and tested locally. Live Gemini, Firecrawl, Turso Cloud, Google Calendar, LangSmith, and Resend sandbox calls still require the account owner’s free credentials. Until those are configured and the full 150-case experiment runs, the app must not claim that provider-level production verification is complete.
+Local provider checks have verified Turso migrations, Gemini model access, a Firecrawl scrape, Google Calendar availability, Resend sandbox delivery, and LangSmith authentication. The corrected two-shard 150-case model experiment and scheduled research run remain production gates.
 
 The repository includes 30 real-company candidates as a reproducible fallback. They are not automatically labeled qualified: missing revenue, employee count, or decision-maker evidence remains visible.
 
@@ -78,7 +78,8 @@ Open `http://localhost:3000`. Without `.env.local`, local development uses revie
 npm run db:migrate       # Apply versioned migrations
 npm run research         # Run capped research pipeline; provider keys required
 npm run benchmark:smoke  # 20 deterministic safety cases
-npm run benchmark        # Full 150-case model experiment
+npm run benchmark -- --shard=1/2  # First 75-case free-tier shard
+npm run benchmark -- --shard=2/2  # Second shard after the daily reset
 npm run check            # TypeScript, unit tests, production build
 ```
 
@@ -90,7 +91,7 @@ Copy [.env.example](./.env.example). Production requires durable Turso credentia
 
 Current credential-free result:
 
-- 40 unit and policy tests pass.
+- 43 unit and policy tests pass.
 - All six migrations apply to an empty in-memory database.
 - TypeScript passes.
 - The optimized Next.js production build passes.
@@ -99,6 +100,6 @@ Current credential-free result:
 - Authentication smoke test: unauthenticated 401, signed login cookie, protected 200.
 - Conversation smoke test: bot disclosure, suppression, human takeover, and handoff all pass.
 
-Full provider verification and the 150-case LangSmith result remain deployment gates, not assumed successes.
+The combined corrected 150-case LangSmith result and scheduled research output remain deployment gates, not assumed successes.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md), [BENCHMARK.md](./BENCHMARK.md), [DEPLOYMENT.md](./DEPLOYMENT.md), [HOW_I_WORKED.md](./HOW_I_WORKED.md), and [LOOM_SCRIPT.md](./LOOM_SCRIPT.md).

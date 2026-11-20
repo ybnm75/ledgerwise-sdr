@@ -2,6 +2,15 @@ import { z } from "zod";
 import { consumeQuota } from "@/lib/rate-limit";
 import { recordProviderUsage } from "@/lib/db";
 
+export function extractGeminiText(body: Record<string, unknown>) {
+  if (typeof body.output_text === "string") return body.output_text;
+  const steps = Array.isArray(body.steps) ? body.steps as Array<Record<string, unknown>> : [];
+  return String(steps
+    .filter((step) => step.type === "model_output" && Array.isArray(step.content))
+    .flatMap((step) => step.content as Array<Record<string, unknown>>)
+    .find((content) => content.type === "text")?.text || "");
+}
+
 export async function geminiJson<T>(input: {
   prompt: string;
   schema: Record<string, unknown>;
@@ -25,8 +34,8 @@ export async function geminiJson<T>(input: {
   });
   const body = await response.json() as Record<string, unknown>;
   const usage = (body.usage || body.usage_metadata || {}) as Record<string, unknown>;
-  const inputTokens = Number(usage.input_tokens || usage.prompt_token_count || 0);
-  const outputTokens = Number(usage.output_tokens || usage.candidates_token_count || 0);
+  const inputTokens = Number(usage.total_input_tokens || usage.input_tokens || usage.prompt_token_count || 0);
+  const outputTokens = Number(usage.total_output_tokens || usage.output_tokens || usage.candidates_token_count || 0);
   await recordProviderUsage({
     provider: "gemini",
     operation: input.operation,
@@ -35,7 +44,11 @@ export async function geminiJson<T>(input: {
     outputTokens,
     latencyMs: Date.now() - started
   });
-  if (!response.ok) throw new Error(`The AI provider failed with ${response.status}.`);
-  const output = String(body.output_text || "");
+  if (!response.ok) {
+    const providerError = body.error as { message?: unknown } | undefined;
+    throw new Error(`The AI provider failed with ${response.status}: ${String(providerError?.message || "unknown error")}`);
+  }
+  const output = extractGeminiText(body);
+  if (!output) throw new Error("The AI provider returned no text output.");
   return input.validator.parse(JSON.parse(output));
 }

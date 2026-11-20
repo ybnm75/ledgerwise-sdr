@@ -70,7 +70,7 @@ Delivery to any other address is rejected by the server.
 
 Create a Developer workspace and set its trace limit to 4,500. Add `LANGSMITH_API_KEY` to GitHub Actions. Do not enable paid products or extended retention.
 
-Run the full benchmark manually and download or preserve its report before the 14-day base-trace retention expires.
+Run shard `1/2`, wait for Gemini's next daily free-tier reset, then run shard `2/2`. Combine their LangSmith experiment names into the 150-case release report and preserve the artifacts before the 14-day base-trace retention expires.
 
 ## 8. Vercel
 
@@ -94,7 +94,7 @@ After deployment verify `/api/health` returns:
 8. Fetch live Google slots and create one test event.
 9. Confirm the event appears in Bookings.
 10. Confirm Activity contains the approval, reply, ownership, suppression, and booking records.
-11. Run the full benchmark and review every blocker.
+11. Run both benchmark shards, combine them, and review every blocker.
 
 ## Rollback
 
