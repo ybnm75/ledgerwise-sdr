@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { listAuditEvents, saveLeadDraft } from "@/lib/db";
+import { getDatabase, listAuditEvents } from "@/lib/db";
 import { requireApiSession } from "@/lib/auth";
 import { saveDraftRevision } from "@/lib/drafts";
 
@@ -19,6 +19,15 @@ export async function PATCH(request: Request, context: LeadRouteContext) {
   const parsed = Update.safeParse(await request.json());
   if (!parsed.success) return Response.json({ error: "The draft update is invalid." }, { status: 400 });
   try {
+    if (parsed.data.status === "approved") {
+      const qualification = await getDatabase().execute({
+        sql: "SELECT band FROM qualification_results WHERE company_id = ? LIMIT 1",
+        args: [id]
+      });
+      if (String(qualification.rows[0]?.band || "") !== "qualified") {
+        return Response.json({ error: "Approval is locked until this lead passes the qualification gates." }, { status: 409 });
+      }
+    }
     const saved = await saveDraftRevision({
       companyId: id,
       status: parsed.data.status,

@@ -63,11 +63,6 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
   async function updateDraft(status: DraftStatus) {
     if (!selected) return;
     setNotice("Saving…");
-    setLeads((current) =>
-      current.map((lead) =>
-        lead.id === selected.id ? { ...lead, draft: { ...lead.draft, status } } : lead
-      )
-    );
     try {
       const response = await fetch(`/api/leads/${selected.id}`, {
         method: "PATCH",
@@ -76,8 +71,13 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "The update was not saved.");
+      setLeads((current) =>
+        current.map((lead) =>
+          lead.id === selected.id ? { ...lead, draft: { ...lead.draft, status: body.data.status } } : lead
+        )
+      );
       setNotice(status === "approved"
-        ? "Draft approved and recorded. Sending remains disabled until an email provider is connected."
+        ? "Draft approved and recorded. Demo delivery is now available."
         : "Draft rejected and recorded in the audit ledger.");
     } catch (caught) {
       setNotice(caught instanceof Error ? caught.message : "The update was not saved.");
@@ -288,6 +288,9 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                       <ShieldCheck size={17} aria-hidden="true" />
                       <p><strong>Grounding check passed.</strong> Company-specific claims map to evidence shown on the left.</p>
                     </div>
+                    {selected.status !== "qualified" ? (
+                      <p className="notice">Approval is locked until this lead passes the required qualification gates.</p>
+                    ) : null}
                     <button className="button button--quiet" type="button" onClick={generateDraft} disabled={generating} aria-busy={generating}>
                       {generating ? "Generating…" : "Generate from verified evidence"}
                     </button>
@@ -319,7 +322,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                         <Pencil size={16} aria-hidden="true" /> {editing ? "Finish editing" : "Edit draft"}
                       </button>
                       {selected.draft.status !== "approved" ? (
-                        <button className="button button--primary" type="button" onClick={() => updateDraft("approved")}>
+                        <button className="button button--primary" type="button" onClick={() => updateDraft("approved")} disabled={selected.status !== "qualified"}>
                           <Check size={16} aria-hidden="true" /> Approve
                         </button>
                       ) : null}
