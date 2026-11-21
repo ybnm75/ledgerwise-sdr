@@ -28,6 +28,10 @@ export async function geminiJson<T>(input: {
     body: JSON.stringify({
       model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
       input: input.prompt,
+      generation_config: {
+        thinking_level: "low",
+        thinking_summaries: "none"
+      },
       response_format: { type: "text", mime_type: "application/json", schema: input.schema }
     }),
     signal: AbortSignal.timeout(60_000)

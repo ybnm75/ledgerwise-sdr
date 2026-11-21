@@ -27,6 +27,15 @@ const now = () => new Date().toISOString();
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 const companyId = (domain) => `company_${sha256(domain).slice(0, 20)}`;
 
+function geminiOutputText(body) {
+  if (typeof body.output_text === "string") return body.output_text;
+  const steps = Array.isArray(body.steps) ? body.steps : [];
+  return String(steps
+    .filter((step) => step?.type === "model_output" && Array.isArray(step.content))
+    .flatMap((step) => step.content)
+    .find((content) => content?.type === "text")?.text || "");
+}
+
 const Extraction = z.object({
   company: z.object({
     name: z.string().min(1).max(200),
@@ -238,16 +247,22 @@ ${sources}`;
     body: JSON.stringify({
       model: config.geminiModel,
       input,
+      generation_config: {
+        thinking_level: "low",
+        thinking_summaries: "none"
+      },
       response_format: { type: "text", mime_type: "application/json", schema: extractionSchema }
     }),
     signal: AbortSignal.timeout(60_000)
   });
   const body = await response.json();
   if (!response.ok) throw new Error(`Gemini extraction failed with ${response.status}.`);
-  const parsed = Extraction.parse(JSON.parse(String(body.output_text || "{}")));
+  const output = geminiOutputText(body);
+  if (!output) throw new Error("Gemini extraction returned no text output.");
+  const parsed = Extraction.parse(JSON.parse(output));
   const tokenUsage = body.usage || body.usage_metadata || {};
-  const inputTokens = Number(tokenUsage.input_tokens || tokenUsage.prompt_token_count || 0);
-  const outputTokens = Number(tokenUsage.output_tokens || tokenUsage.candidates_token_count || 0);
+  const inputTokens = Number(tokenUsage.total_input_tokens || tokenUsage.input_tokens || tokenUsage.prompt_token_count || 0);
+  const outputTokens = Number(tokenUsage.total_output_tokens || tokenUsage.output_tokens || tokenUsage.candidates_token_count || 0);
   usage.geminiRequests += 1;
   usage.inputTokens += inputTokens;
   usage.outputTokens += outputTokens;
