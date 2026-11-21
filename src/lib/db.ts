@@ -79,11 +79,12 @@ export async function listAuditEvents(entityId: string) {
 export async function saveSuppression(input: { company: string; contactKey: string; reason: string; threadId?: string; triggeringMessageId?: string }) {
   await ensureDatabase();
   const now = new Date().toISOString();
+  const contactKey = input.contactKey.trim().toLowerCase();
   await getDatabase().execute({
     sql: `INSERT INTO suppressions (id, company, contact_key, reason, created_at, thread_id, triggering_message_id)
           VALUES (?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(contact_key) DO UPDATE SET reason=excluded.reason, thread_id=excluded.thread_id, triggering_message_id=excluded.triggering_message_id`,
-    args: [randomUUID(), input.company, input.contactKey, input.reason, now, input.threadId ?? null, input.triggeringMessageId ?? null]
+    args: [randomUUID(), input.company, contactKey, input.reason, now, input.threadId ?? null, input.triggeringMessageId ?? null]
   });
 }
 
@@ -91,7 +92,7 @@ export async function isSuppressed(contactKey: string) {
   await ensureDatabase();
   const result = await getDatabase().execute({
     sql: `SELECT id FROM suppressions WHERE contact_key = ? LIMIT 1`,
-    args: [contactKey]
+    args: [contactKey.trim().toLowerCase()]
   });
   return result.rows.length > 0;
 }
@@ -139,14 +140,24 @@ export async function saveBooking(input: {
   threadId?: string;
   eventUrl?: string;
   idempotencyKey?: string;
+  actor: { type: string; id: string };
 }) {
   await ensureDatabase();
   const now = new Date().toISOString();
-  await getDatabase().execute({
-    sql: `INSERT INTO bookings (id, company, attendee_name, attendee_email, starts_at, provider_uid, status, created_at, attendee_time_zone, thread_id, event_url, idempotency_key)
-          VALUES (?, ?, ?, ?, ?, ?, 'confirmed', ?, ?, ?, ?, ?)`,
-    args: [randomUUID(), input.company, input.attendeeName, input.attendeeEmail, input.startsAt, input.providerUid ?? null, now, input.attendeeTimeZone ?? null, input.threadId ?? null, input.eventUrl ?? null, input.idempotencyKey ?? null]
-  });
+  const id = randomUUID();
+  await getDatabase().batch([
+    {
+      sql: `INSERT INTO bookings (id, company, attendee_name, attendee_email, starts_at, provider_uid, status, created_at, attendee_time_zone, thread_id, event_url, idempotency_key)
+            VALUES (?, ?, ?, ?, ?, ?, 'confirmed', ?, ?, ?, ?, ?)`,
+      args: [id, input.company, input.attendeeName, input.attendeeEmail, input.startsAt, input.providerUid ?? null, now, input.attendeeTimeZone ?? null, input.threadId ?? null, input.eventUrl ?? null, input.idempotencyKey ?? null]
+    },
+    {
+      sql: `INSERT INTO audit_events (id, entity_type, entity_id, action, payload_json, created_at, actor_type, actor_id)
+            VALUES (?, 'booking', ?, 'booking.confirmed', ?, ?, ?, ?)`,
+      args: [randomUUID(), id, JSON.stringify({ company: input.company, startsAt: input.startsAt, providerUid: input.providerUid ?? null }), now, input.actor.type, input.actor.id]
+    }
+  ], "write");
+  return { id };
 }
 
 export async function listBookings() {

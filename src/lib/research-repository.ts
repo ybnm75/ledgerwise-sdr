@@ -1,5 +1,6 @@
 import type { Lead, Evidence } from "@/lib/types";
 import { ensureDatabase, getDatabase } from "@/lib/db";
+import { outreachSafeClaim } from "@/lib/drafts";
 
 function safeJsonArray(value: unknown) {
   try {
@@ -52,7 +53,7 @@ export async function listResearchedLeads(): Promise<Lead[]> {
       evidence,
       draft: {
         subject: `${String(row.name)} finance operations`,
-        body: `Hi there,\n\n${trigger} ${commerce}\n\nLedgerwise handles monthly bookkeeping for ecommerce brands. Would it be useful to compare notes on your current close?\n\nBest,\nLedgerwise`,
+        body: `Hi there,\n\n${outreachSafeClaim(trigger)} ${outreachSafeClaim(commerce)}\n\nLedgerwise handles monthly bookkeeping for ecommerce brands. Would it be useful to compare notes on your current close?\n\nBest,\nLedgerwise`,
         status: "pending"
       }
     });

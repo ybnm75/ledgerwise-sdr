@@ -6,7 +6,7 @@
 - Scheduled 30-company research pipeline with source validation and deterministic qualification.
 - Evidence-bound, immutable draft revisions with edit and approval controls.
 - Resend sandbox delivery with qualification, approval, suppression, recipient, and idempotency gates.
-- Persistent Demo Inbox, deterministic reply policies, Gemini routing, and enforced human ownership.
+- Persistent Demo Inbox, deterministic reply policies, Groq routing, permanent suppression, and enforced human ownership.
 - Google Calendar free/busy slots and idempotent event creation.
 - Turso-compatible migrations, health check, audit trail, security headers, and rate limiting.
 - A 150-case LangSmith-compatible benchmark plus a credential-free smoke suite.

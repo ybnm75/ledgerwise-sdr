@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createHash } from "node:crypto";
 import { recordProviderUsage } from "@/lib/db";
 
 const BookingInput = z.object({
@@ -6,13 +7,27 @@ const BookingInput = z.object({
   attendee: z.object({
     name: z.string().min(1),
     email: z.string().email(),
-    timeZone: z.string().min(1)
+    timeZone: z.string().min(1).refine(isValidTimeZone)
   }),
   company: z.string().min(1),
-  threadId: z.string().optional()
+  threadId: z.string().optional(),
+  idempotencyKey: z.string().min(1).max(128).optional()
 });
 
 export type BookingInput = z.infer<typeof BookingInput>;
+
+export function isValidTimeZone(value: string) {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: value }).format();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function bookingProviderEventId(idempotencyKey: string) {
+  return `event${createHash("sha256").update(idempotencyKey).digest("hex").slice(0, 40)}`;
+}
 
 type BusyPeriod = { start: string; end: string };
 type CalendarRules = {
@@ -157,17 +172,22 @@ async function selectedSlotIsAvailable(start: Date) {
 export async function createBooking(rawInput: BookingInput) {
   const input = BookingInput.parse(rawInput);
   const start = new Date(input.start);
+  if (start.getTime() < Date.now() + defaultRules.minimumNoticeMinutes * 60_000) {
+    throw new Error("Bookings require at least 24 hours of notice.");
+  }
   if (!(await selectedSlotIsAvailable(start))) throw new Error("That slot is no longer available. Refresh availability and choose another time.");
   const config = calendarConfig();
   const token = await accessToken();
   const end = new Date(start.getTime() + defaultRules.durationMinutes * 60_000);
   const started = Date.now();
+  const providerEventId = input.idempotencyKey ? bookingProviderEventId(input.idempotencyKey) : undefined;
   const url = new URL(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(config.calendarId)}/events`);
   url.searchParams.set("sendUpdates", "all");
   const response = await fetch(url, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({
+      ...(providerEventId ? { id: providerEventId } : {}),
       summary: `Ledgerwise introduction — ${input.company}`,
       description: "Booked through the Ledgerwise Sales Desk supervised agent.",
       start: { dateTime: start.toISOString(), timeZone: defaultRules.timeZone },
@@ -179,6 +199,19 @@ export async function createBooking(rawInput: BookingInput) {
   });
   const body = await response.json() as { id?: string; htmlLink?: string; status?: string };
   await recordProviderUsage({ provider: "google-calendar", operation: "create-event", units: 1, latencyMs: Date.now() - started });
+  if (response.status === 409 && providerEventId) {
+    const reconcileStarted = Date.now();
+    const existing = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(config.calendarId)}/events/${providerEventId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+      signal: AbortSignal.timeout(15_000)
+    });
+    const existingBody = await existing.json() as { id?: string; htmlLink?: string; status?: string };
+    await recordProviderUsage({ provider: "google-calendar", operation: "get-event", units: 1, latencyMs: Date.now() - reconcileStarted });
+    if (existing.ok && existingBody.id) {
+      return { providerUid: existingBody.id, eventUrl: existingBody.htmlLink ?? "", status: existingBody.status ?? "confirmed" };
+    }
+  }
   if (!response.ok || !body.id) throw new Error(`Calendar booking failed with ${response.status}.`);
   return { providerUid: body.id, eventUrl: body.htmlLink ?? "", status: body.status ?? "confirmed" };
 }

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ensureDatabase, getDatabase, isSuppressed, recordAuditEvent } from "@/lib/db";
 import { sendApprovedEmail } from "@/lib/email";
 import { requireApiSession } from "@/lib/auth";
-import { latestDraft } from "@/lib/drafts";
+import { draftEvidenceIsCurrent, latestDraft } from "@/lib/drafts";
 import { createHash, randomUUID } from "node:crypto";
 
 const Input = z.object({
@@ -29,8 +29,11 @@ export async function POST(request: Request) {
       sql: "SELECT band FROM qualification_results WHERE company_id = ? LIMIT 1",
       args: [parsed.data.leadId]
     });
-    if (qualification.rows[0] && String(qualification.rows[0].band) !== "qualified") {
+    if (String(qualification.rows[0]?.band || "") !== "qualified") {
       return Response.json({ error: "This researched lead has not passed the qualification gates." }, { status: 409 });
+    }
+    if (!(await draftEvidenceIsCurrent(parsed.data.leadId, draft.evidenceIds))) {
+      return Response.json({ error: "The approved draft references stale evidence and must be regenerated." }, { status: 409 });
     }
     const allowedRecipient = process.env.TEST_RECIPIENT_EMAIL?.toLowerCase();
     if (!allowedRecipient || parsed.data.to.toLowerCase() !== allowedRecipient) {

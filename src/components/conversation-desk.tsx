@@ -110,8 +110,8 @@ export function ConversationDesk() {
       <section className="thread-detail" aria-label={`${selected.company} conversation`}>
         <header className="thread-detail__header">
           <div><h2>{selected.company}</h2><p>{selected.contact} · Demo Inbox · {selected.owner === "human" ? "Human owns thread" : "Agent supervised"}</p></div>
-          <button className="button button--quiet" type="button" onClick={changeOwner} disabled={loading}>
-            <Hand size={16} aria-hidden="true" /> {selected.owner === "agent" ? "Take over" : "Return to agent"}
+          <button className="button button--quiet" type="button" onClick={changeOwner} disabled={loading || (selected.owner === "human" && selected.state === "suppressed")}>
+            <Hand size={16} aria-hidden="true" /> {selected.owner === "human" && selected.state === "suppressed" ? "Suppression locked" : selected.owner === "agent" ? "Take over" : "Return to agent"}
           </button>
         </header>
         <div className="message-stream">

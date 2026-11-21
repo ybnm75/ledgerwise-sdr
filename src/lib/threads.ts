@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { ensureDatabase, getDatabase, recordAuditEvent, saveSuppression } from "@/lib/db";
-import { draftReply } from "@/lib/agent";
+import { ensureDatabase, getDatabase, isSuppressed, recordAuditEvent, saveSuppression } from "@/lib/db";
+import { draftReply, suppressedContactReply } from "@/lib/agent";
 
 export type ThreadView = {
   id: string;
@@ -94,13 +94,15 @@ export async function listThreads(): Promise<ThreadView[]> {
 
 export async function changeThreadOwner(input: { threadId: string; owner: "agent" | "human"; actorId: string }) {
   await ensureDatabase();
-  const result = await getDatabase().execute({ sql: "SELECT owner FROM threads WHERE id=? LIMIT 1", args: [input.threadId] });
+  const result = await getDatabase().execute({ sql: "SELECT owner, state, contact_key FROM threads WHERE id=? LIMIT 1", args: [input.threadId] });
   if (!result.rows[0]) throw new Error("Conversation not found.");
   const previous = String(result.rows[0].owner);
   if (previous === input.owner) return;
+  const suppressed = String(result.rows[0].state) === "suppressed" || await isSuppressed(String(result.rows[0].contact_key));
+  if (input.owner === "agent" && suppressed) throw new Error("Suppressed contacts cannot be returned to the agent.");
   const timestamp = new Date().toISOString();
   await getDatabase().batch([
-    { sql: "UPDATE threads SET owner=?, state=?, updated_at=? WHERE id=?", args: [input.owner, input.owner === "human" ? "handoff" : "agent", timestamp, input.threadId] },
+    { sql: "UPDATE threads SET owner=?, state=?, updated_at=? WHERE id=?", args: [input.owner, suppressed ? "suppressed" : input.owner === "human" ? "handoff" : "agent", timestamp, input.threadId] },
     {
       sql: `INSERT INTO thread_ownership (id, thread_id, previous_owner, new_owner, actor_id, reason, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -125,7 +127,8 @@ export async function processDemoMessage(input: { threadId: string; message: str
     args: [messageId, input.threadId, String(thread.contact_name), input.message, input.providerMessageId, timestamp]
   });
   const ownedByHuman = String(thread.owner) === "human";
-  const result = ownedByHuman ? {
+  const alreadySuppressed = String(thread.state) === "suppressed" || await isSuppressed(String(thread.contact_key));
+  const result = alreadySuppressed ? suppressedContactReply() : ownedByHuman ? {
     intent: "unknown" as const,
     action: "handoff" as const,
     confidence: 1,
@@ -152,7 +155,7 @@ export async function processDemoMessage(input: { threadId: string; message: str
     });
   }
   await getDatabase().batch(operations, "write");
-  if (result.action === "suppress") {
+  if (result.action === "suppress" && !alreadySuppressed) {
     await saveSuppression({ company: String(thread.company_name), contactKey: String(thread.contact_key), reason: result.reason, threadId: input.threadId, triggeringMessageId: messageId });
   }
   await recordAuditEvent({ entityType: "thread", entityId: input.threadId, action: `agent.${result.action}`, payload: { decisionId, messageId, confidence: result.confidence, demo: true }, actor: { type: "system", id: "reply-agent" } });

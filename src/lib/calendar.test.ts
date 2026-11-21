@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateSlots } from "@/lib/calendar";
+import { bookingProviderEventId, calculateSlots, isValidTimeZone } from "@/lib/calendar";
 
 const rules = {
   timeZone: "America/New_York",
@@ -46,5 +46,27 @@ describe("calendar slot calculation", () => {
       busy: []
     });
     expect(slots).toEqual([]);
+  });
+
+  it("enforces minimum notice", () => {
+    const slots = calculateSlots({
+      rangeStart: new Date("2026-11-23T14:00:00Z"),
+      rangeEnd: new Date("2026-11-23T17:00:00Z"),
+      now: new Date("2026-11-23T12:00:00Z"),
+      rules: { ...rules, minimumNoticeMinutes: 24 * 60 },
+      busy: []
+    });
+    expect(slots).toEqual([]);
+  });
+
+  it("validates attendee IANA timezones", () => {
+    expect(isValidTimeZone("Africa/Algiers")).toBe(true);
+    expect(isValidTimeZone("not/a-timezone")).toBe(false);
+  });
+
+  it("derives a stable Google event id for booking reconciliation", () => {
+    expect(bookingProviderEventId("same-booking")).toBe(bookingProviderEventId("same-booking"));
+    expect(bookingProviderEventId("same-booking")).not.toBe(bookingProviderEventId("other-booking"));
+    expect(bookingProviderEventId("same-booking")).toMatch(/^[a-v0-9]{5,1024}$/);
   });
 });

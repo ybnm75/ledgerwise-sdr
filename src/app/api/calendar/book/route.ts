@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createBooking } from "@/lib/calendar";
+import { createBooking, isValidTimeZone } from "@/lib/calendar";
 import { saveBooking } from "@/lib/db";
 import { requireApiSession } from "@/lib/auth";
 import { createHash } from "node:crypto";
@@ -10,7 +10,7 @@ const Input = z.object({
   attendee: z.object({
     name: z.string().min(1).max(120),
     email: z.string().email(),
-    timeZone: z.string().min(1).max(80)
+    timeZone: z.string().min(1).max(80).refine(isValidTimeZone, "A valid IANA timezone is required.")
   }),
   company: z.string().min(1).max(200),
   threadId: z.string().max(200).optional()
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     await ensureDatabase();
     const existing = await getDatabase().execute({ sql: "SELECT id, provider_uid, event_url FROM bookings WHERE idempotency_key=? LIMIT 1", args: [idempotencyKey] });
     if (existing.rows[0]) return Response.json({ data: existing.rows[0], duplicate: true });
-    const booking = await createBooking(parsed.data);
+    const booking = await createBooking({ ...parsed.data, idempotencyKey });
     await saveBooking({
       company: parsed.data.company,
       attendeeName: parsed.data.attendee.name,
@@ -36,7 +36,8 @@ export async function POST(request: Request) {
       attendeeTimeZone: parsed.data.attendee.timeZone,
       threadId: parsed.data.threadId,
       eventUrl: booking.eventUrl,
-      idempotencyKey
+      idempotencyKey,
+      actor: { type: "human", id: auth.session.sub }
     });
     return Response.json({ data: booking }, { status: 201 });
   } catch (error) {

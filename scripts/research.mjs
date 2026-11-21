@@ -404,18 +404,35 @@ try {
     succeeded += Number(result);
     failed += Number(!result);
   }
-  await database.execute({
-    sql: `UPDATE research_runs SET status=?, succeeded_count=?, failed_count=?, usage_json=?, completed_at=? WHERE id=?`,
-    args: [succeeded ? "completed" : "failed", succeeded, failed, JSON.stringify(usage), now(), runId]
-  });
+  const completedAt = now();
+  const runStatus = succeeded ? "completed" : "failed";
+  await database.batch([
+    {
+      sql: `UPDATE research_runs SET status=?, succeeded_count=?, failed_count=?, usage_json=?, completed_at=? WHERE id=?`,
+      args: [runStatus, succeeded, failed, JSON.stringify(usage), completedAt, runId]
+    },
+    {
+      sql: `INSERT INTO audit_events (id, entity_type, entity_id, action, payload_json, created_at, actor_type, actor_id)
+            VALUES (?, 'research_run', ?, ?, ?, ?, 'system', 'scheduled-research')`,
+      args: [randomUUID(), runId, `research.${runStatus}`, JSON.stringify({ succeeded, failed, usage, trigger: config.trigger }), completedAt]
+    }
+  ], "write");
   process.stdout.write(JSON.stringify({ runId, succeeded, failed, usage }, null, 2) + "\n");
   if (!succeeded) process.exitCode = 1;
 } catch (error) {
   const message = error instanceof Error ? error.message : "Research run failed.";
-  await database.execute({
-    sql: `UPDATE research_runs SET status='failed', succeeded_count=?, failed_count=?, usage_json=?, error=?, completed_at=? WHERE id=?`,
-    args: [succeeded, failed, JSON.stringify(usage), message.slice(0, 1000), now(), runId]
-  }).catch(() => undefined);
+  const failedAt = now();
+  await database.batch([
+    {
+      sql: `UPDATE research_runs SET status='failed', succeeded_count=?, failed_count=?, usage_json=?, error=?, completed_at=? WHERE id=?`,
+      args: [succeeded, failed, JSON.stringify(usage), message.slice(0, 1000), failedAt, runId]
+    },
+    {
+      sql: `INSERT INTO audit_events (id, entity_type, entity_id, action, payload_json, created_at, actor_type, actor_id)
+            VALUES (?, 'research_run', ?, 'research.failed', ?, ?, 'system', 'scheduled-research')`,
+      args: [randomUUID(), runId, JSON.stringify({ succeeded, failed, usage, trigger: config.trigger, error: message.slice(0, 1000) }), failedAt]
+    }
+  ], "write").catch(() => undefined);
   throw error;
 } finally {
   await database.close();

@@ -372,6 +372,7 @@ p { text-wrap: pretty; }
 .field input:disabled, .field textarea:disabled { opacity: 0.55; cursor: not-allowed; }
 .field--grow { flex: 1; }
 .grounding-note { display: flex; align-items: flex-start; gap: var(--space-xs); padding: var(--space-sm); background: var(--color-success-soft); color: var(--color-success); border-radius: var(--radius-sm); }
+.grounding-note[data-complete="false"] { background: var(--color-warning-soft); color: var(--color-warning); }
 .grounding-note svg { flex-shrink: 0; margin-top: var(--space-3xs); }
 .grounding-note p { font-size: var(--text-sm); }
 .send-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-sm); padding: var(--space-md); border: 1px solid var(--color-rule-2); border-radius: var(--radius-card); background: var(--color-paper); }

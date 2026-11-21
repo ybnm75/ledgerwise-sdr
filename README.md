@@ -40,7 +40,7 @@ Inbound demo reply -> hard rules -> structured Groq decision -> reply / handoff 
 
 ## Honest current state
 
-Local provider checks have verified Turso migrations, Groq strict JSON output, Firecrawl-backed research ingestion, Google Calendar availability, Resend sandbox delivery, and LangSmith authentication. The Groq-backed LangSmith release experiment passed 150/150 cases, and a one-company research smoke run completed with exact-excerpt verification.
+Local and production provider checks have verified Turso migrations, Groq strict JSON output, Firecrawl-backed research ingestion, Google Calendar booking and invitation delivery, Resend sandbox delivery, and LangSmith authentication. The Groq-backed LangSmith release experiment passed 150/150 cases. The first complete scheduled research run processed 20 companies, accepted 17 evidence-backed records, and safely rejected three unsupported records.
 
 The repository includes 30 real-company candidates as a reproducible fallback. They are not automatically labeled qualified: missing revenue, employee count, or decision-maker evidence remains visible.
 
@@ -90,7 +90,7 @@ Copy [.env.example](./.env.example). Production requires durable Turso credentia
 
 Current credential-free result:
 
-- 43 unit and policy tests pass.
+- 54 unit, route-integration, and policy tests pass.
 - All six migrations apply to an empty in-memory database.
 - TypeScript passes.
 - The optimized Next.js production build passes.
@@ -99,6 +99,6 @@ Current credential-free result:
 - Authentication smoke test: unauthenticated 401, signed login cookie, protected 200.
 - Conversation smoke test: bot disclosure, suppression, human takeover, and handoff all pass.
 
-The 150-case LangSmith release result and focused research smoke test pass. The first complete scheduled research run remains an operational check.
+The 150-case LangSmith release result, focused research smoke test, complete scheduled research run, and production calendar flow pass.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md), [BENCHMARK.md](./BENCHMARK.md), [DEPLOYMENT.md](./DEPLOYMENT.md), [HOW_I_WORKED.md](./HOW_I_WORKED.md), and [LOOM_SCRIPT.md](./LOOM_SCRIPT.md).

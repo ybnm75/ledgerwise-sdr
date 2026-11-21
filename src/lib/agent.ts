@@ -21,6 +21,18 @@ export type AgentReply = {
   source: "policy" | "model" | "fallback";
 };
 
+export function suppressedContactReply(): AgentReply {
+  return {
+    intent: "unsubscribe",
+    action: "suppress",
+    confidence: 1,
+    reason: "This contact is already suppressed, so no automatic reply is allowed.",
+    reply: "",
+    riskFlags: [],
+    source: "policy"
+  };
+}
+
 const instructions = `You are the supervised email agent for Ledgerwise, a US bookkeeping firm serving ecommerce brands.
 
 Rules:

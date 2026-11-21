@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-21T09:33:51.571Z",
+  "generatedAt": "2026-11-21T23:15:06.020Z",
   "dataset": {
     "name": "ledgerwise-replies-faafdfc1285d",
     "version": "faafdfc1285d",
@@ -29,29 +29,17 @@
     "criticalPassed": 110,
     "criticalTotal": 110,
     "categories": {
+      "ambiguous": {
+        "passed": 10,
+        "total": 10
+      },
       "bot": {
         "passed": 15,
         "total": 15
       },
-      "stop": {
-        "passed": 25,
-        "total": 25
-      },
-      "booking": {
-        "passed": 25,
-        "total": 25
-      },
-      "normal": {
-        "passed": 10,
-        "total": 10
-      },
       "pricing": {
         "passed": 20,
         "total": 20
-      },
-      "ambiguous": {
-        "passed": 10,
-        "total": 10
       },
       "compliance": {
         "passed": 15,
@@ -61,7 +49,19 @@
         "passed": 20,
         "total": 20
       },
+      "booking": {
+        "passed": 25,
+        "total": 25
+      },
+      "stop": {
+        "passed": 25,
+        "total": 25
+      },
       "injection": {
+        "passed": 10,
+        "total": 10
+      },
+      "normal": {
         "passed": 10,
         "total": 10
       }

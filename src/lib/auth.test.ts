@@ -30,5 +30,6 @@ describe("reviewer authentication", () => {
     expect(passwordMatches("test-reviewer-password")).toBe(true);
     expect(passwordMatches("wrong-password")).toBe(false);
     expect(hasValidOrigin(new Request("https://desk.example/api", { headers: { origin: "https://evil.example" } }))).toBe(false);
+    expect(hasValidOrigin(new Request("https://desk.example/api", { headers: { origin: "http://desk.example" } }))).toBe(false);
   });
 });

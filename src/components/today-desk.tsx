@@ -19,16 +19,16 @@ export function TodayDesk({ leads, onNavigate }: Props) {
     ]).then(([threads, calls, research]) => {
       const items = Array.isArray(threads.data) ? threads.data : [];
       setThreadCounts({ handoff: items.filter((item: { state: string }) => item.state === "handoff").length, booking: items.filter((item: { state: string }) => item.state === "booking").length });
-      setBookings(Array.isArray(calls.data) ? calls.data.length : 0);
+      setBookings(Array.isArray(calls.data) ? calls.data.filter((item: { starts_at?: string }) => Date.parse(item.starts_at || "") >= Date.now()).length : 0);
       setResearchFailure(Array.isArray(research.data) && research.data[0]?.status === "failed");
     }).catch(() => undefined);
   }, []);
 
-  const pendingDrafts = leads.filter((lead) => lead.draft.status === "pending").length;
-  const researchNeeded = leads.filter((lead) => lead.gaps.length > 0).length;
+  const pendingDrafts = leads.filter((lead) => lead.status === "qualified" && lead.draft.status === "pending").length;
+  const researchNeeded = leads.filter((lead) => lead.status !== "qualified").length;
   const tasks = [
     { label: "Review research gaps", detail: `${researchNeeded} leads still need verified evidence`, icon: SearchCheck, view: "research" as const },
-    { label: "Approve first outreach", detail: `${pendingDrafts} drafts are waiting for a decision`, icon: FileCheck2, view: "outreach" as const },
+    { label: "Approve qualified outreach", detail: `${pendingDrafts} qualified drafts are waiting for a decision`, icon: FileCheck2, view: "outreach" as const },
     { label: "Handle human conversations", detail: `${threadCounts.handoff} threads need a salesperson`, icon: MessageSquareText, view: "conversations" as const },
     { label: "Finish scheduling", detail: `${threadCounts.booking} threads requested calendar times`, icon: CalendarCheck, view: "bookings" as const }
   ];

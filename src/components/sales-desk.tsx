@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { DraftStatus, Lead } from "@/lib/types";
-import { qualificationBand } from "@/lib/qualification";
 import { ConversationDesk } from "@/components/conversation-desk";
 import { BookingDesk } from "@/components/booking-desk";
 import { LogoutButton } from "@/components/logout-button";
@@ -26,6 +25,11 @@ import { ActivityDesk } from "@/components/activity-desk";
 import { ResearchStatus } from "@/components/research-status";
 
 type View = "today" | "research" | "outreach" | "conversations" | "bookings" | "activity";
+
+function leadBand(lead: Lead) {
+  if (lead.status === "qualified") return "Strong fit";
+  return lead.score >= 60 ? "Review" : "Research needed";
+}
 
 const navigation: Array<{ id: View; label: string; icon: typeof Inbox }> = [
   { id: "today", label: "Today", icon: LayoutDashboard },
@@ -59,6 +63,16 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
   }, [leads, query]);
 
   const selected = leads.find((lead) => lead.id === selectedId) ?? filtered[0];
+  const hasRequiredDraftEvidence = Boolean(selected?.evidence.some((item) => item.kind === "commerce") && selected?.evidence.some((item) => item.kind === "trigger"));
+  const canApprove = selected?.status === "qualified" && hasRequiredDraftEvidence;
+
+  function selectLead(id: string) {
+    setSelectedId(id);
+    setNotice("");
+    setRecipient("");
+    setEditing(false);
+    setMobileDetail(true);
+  }
 
   async function updateDraft(status: DraftStatus) {
     if (!selected) return;
@@ -196,7 +210,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                     href={`#${lead.id}`}
                     key={lead.id}
                     role="listitem"
-                    onClick={(event) => { event.preventDefault(); setSelectedId(lead.id); setMobileDetail(true); }}
+                    onClick={(event) => { event.preventDefault(); selectLead(lead.id); }}
                   >
                     <span className="lead-row__main">
                       <strong>{lead.company}</strong>
@@ -204,7 +218,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                     </span>
                     <span className="lead-row__score fig">{lead.score}</span>
                     <span className="lead-row__status" data-status={lead.draft.status}>
-                      {lead.draft.status === "pending" ? qualificationBand(lead.score) : lead.draft.status}
+                      {lead.draft.status === "pending" ? leadBand(lead) : lead.draft.status}
                     </span>
                   </a>
                 )) : (
@@ -234,7 +248,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                   </div>
                   <div className="score-block">
                     <span className="fig">{selected.score}</span>
-                    <small>{qualificationBand(selected.score)}</small>
+                    <small>{leadBand(selected)}</small>
                   </div>
                 </header>
 
@@ -284,14 +298,14 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                         onChange={(event) => updateBody(event.target.value)}
                       />
                     </label>
-                    <div className="grounding-note">
+                    <div className="grounding-note" data-complete={hasRequiredDraftEvidence}>
                       <ShieldCheck size={17} aria-hidden="true" />
-                      <p><strong>Grounding check passed.</strong> Company-specific claims map to evidence shown on the left.</p>
+                      <p><strong>{hasRequiredDraftEvidence ? "Grounding check passed." : "Grounding incomplete."}</strong> {hasRequiredDraftEvidence ? "Company-specific claims map to current commerce and trigger evidence." : "Verified commerce and trigger evidence are required before drafting."}</p>
                     </div>
                     {selected.status !== "qualified" ? (
                       <p className="notice">Approval is locked until this lead passes the required qualification gates.</p>
                     ) : null}
-                    <button className="button button--quiet" type="button" onClick={generateDraft} disabled={generating} aria-busy={generating}>
+                    <button className="button button--quiet" type="button" onClick={generateDraft} disabled={generating || !hasRequiredDraftEvidence} aria-busy={generating}>
                       {generating ? "Generating…" : "Generate from verified evidence"}
                     </button>
                     {selected.draft.status === "approved" ? (
@@ -322,7 +336,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                         <Pencil size={16} aria-hidden="true" /> {editing ? "Finish editing" : "Edit draft"}
                       </button>
                       {selected.draft.status !== "approved" ? (
-                        <button className="button button--primary" type="button" onClick={() => updateDraft("approved")} disabled={selected.status !== "qualified"}>
+                        <button className="button button--primary" type="button" onClick={() => updateDraft("approved")} disabled={!canApprove}>
                           <Check size={16} aria-hidden="true" /> Approve
                         </button>
                       ) : null}

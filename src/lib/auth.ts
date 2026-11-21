@@ -68,7 +68,7 @@ export function hasValidOrigin(request: Request) {
   const origin = request.headers.get("origin");
   if (!origin) return process.env.VERCEL_ENV !== "production";
   try {
-    return new URL(origin).host === new URL(request.url).host;
+    return new URL(origin).origin === new URL(request.url).origin;
   } catch {
     return false;
   }

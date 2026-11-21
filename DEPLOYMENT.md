@@ -42,7 +42,7 @@ Enable Zero Data Retention in Groq Data Controls. This free tier is suitable for
 
 ## 4. Firecrawl
 
-Create the no-card free key and add `FIRECRAWL_API_KEY` to GitHub Actions. The code stops at 800 credits per run. Trigger the research workflow manually once before enabling the weekly schedule.
+Create the no-card free key and add `FIRECRAWL_API_KEY` to GitHub Actions. The code stops at 200 credits per run. Trigger the research workflow manually once before enabling the weekly schedule.
 
 ## 5. Google Calendar
 
@@ -86,9 +86,9 @@ After deployment verify `/api/health` returns:
 
 1. Log in with the reviewer password.
 2. Open Research and confirm the latest run and source excerpts.
-3. Generate, edit, approve, and reload one draft.
-4. Verify an edit after approval returns the revision to pending.
-5. Send one message to the configured sandbox recipient.
+3. Confirm unqualified leads cannot be approved. If a qualified lead exists, generate, edit, approve, and reload its current draft.
+4. Verify an edit after approval creates a pending revision and that stale evidence blocks delivery.
+5. For a qualified, approved lead only, send one message to the configured sandbox recipient. Otherwise verify the sandbox provider separately and preserve the qualification block.
 6. Submit bot, stop, booking, compliance, and prompt-injection Demo Inbox messages.
 7. Take over a thread and verify the agent cannot send.
 8. Fetch live Google slots and create one test event.

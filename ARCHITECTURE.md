@@ -28,7 +28,7 @@ Vercel serves the application and synchronous APIs. Long research runs execute i
 schedule/manual trigger
   -> create research run
   -> deduplicate canonical domains
-  -> fetch at most five public pages
+  -> fetch at most three public pages
   -> reject private network targets
   -> structured evidence extraction
   -> verify excerpt occurs in captured text
@@ -49,7 +49,7 @@ generated -> pending review -> approved -> sending -> sent
      +-> superseded
 ```
 
-Every revision is immutable and content-hashed. Sending reloads the latest database revision, verifies approval, checks qualification and suppression, restricts the recipient to the sandbox address, and reserves a persistent idempotency key before contacting Resend.
+Every revision is immutable and content-hashed. Sending reloads the latest database revision, verifies approval, checks qualification, current evidence, and suppression, restricts the recipient to the sandbox address, and reserves a persistent idempotency key before contacting Resend.
 
 ## Reply state machine
 
@@ -73,7 +73,8 @@ Prospect text is untrusted data, never a system instruction. Deterministic check
 ```text
 intent -> free/busy -> calculated slots -> selected slot
                                       -> recheck exact interval
-                                      -> Google event
+                                      -> deterministic Google event ID
+                                      -> create or reconcile existing event
                                       -> confirmed database record
 ```
 

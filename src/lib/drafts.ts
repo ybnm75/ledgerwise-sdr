@@ -47,6 +47,25 @@ export function draftPolicyResult(status: DraftRecord["status"], body: string) {
     : enforceOutboundPolicy(body);
 }
 
+export function outreachSafeClaim(value: string) {
+  return value
+    .replace(/\s*(?:\(|\[)?(?:regular\s+price\s+)?(?:for|at|from|priced\s+at)?\s*(?:USD\s*)?\$\s*\d[\d,.]*(?:\s*(?:\)|\]))?/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+export async function draftEvidenceIsCurrent(companyId: string, evidenceIds: string[]) {
+  const uniqueIds = [...new Set(evidenceIds)];
+  if (!uniqueIds.length) return false;
+  await ensureDatabase();
+  const placeholders = uniqueIds.map(() => "?").join(",");
+  const result = await getDatabase().execute({
+    sql: `SELECT COUNT(DISTINCT id) AS count FROM evidence WHERE company_id = ? AND id IN (${placeholders})`,
+    args: [companyId, ...uniqueIds]
+  });
+  return Number(result.rows[0]?.count ?? 0) === uniqueIds.length;
+}
+
 function rowToDraft(row: Record<string, unknown>): DraftRecord {
   return {
     id: String(row.id),
@@ -89,6 +108,9 @@ export async function saveDraftRevision(input: {
   await ensureDatabase();
   const policy = draftPolicyResult(input.status, input.body);
   if (!policy.allowed) throw new Error(`Outbound policy blocked: ${policy.violations.join(", ")}.`);
+  if (input.status !== "rejected" && !(await draftEvidenceIsCurrent(input.companyId, input.evidenceIds))) {
+    throw new Error("The draft evidence is missing or stale. Regenerate the draft from current research.");
+  }
   const existing = await latestDraft(input.companyId);
   const contentHash = hashDraft(input.subject, input.body);
   const timestamp = new Date().toISOString();
@@ -149,7 +171,7 @@ export async function generateGroundedDraft(companyId: string, actorId: string) 
   const question = selection.callToAction === "short_call"
     ? "Would a short call about your current close be useful?"
     : "Would it be useful to compare notes on your current close?";
-  const body = `Hi there,\n\n${trigger.claim} ${commerce.claim} Channel reconciliation and month-end work can get complicated quickly.\n\nLedgerwise handles monthly bookkeeping for ecommerce brands. ${question}\n\nBest,\nLedgerwise`;
+  const body = `Hi there,\n\n${outreachSafeClaim(trigger.claim)} ${outreachSafeClaim(commerce.claim)} Channel reconciliation and month-end work can get complicated quickly.\n\nLedgerwise handles monthly bookkeeping for ecommerce brands. ${question}\n\nBest,\nLedgerwise`;
   return saveDraftRevision({
     companyId,
     subject,

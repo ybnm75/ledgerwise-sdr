@@ -37,7 +37,7 @@ Public sources also could not reliably prove revenue, headcount, and named conta
 
 ## Validation performed
 
-- 43 automated tests pass across authentication, qualification, provider parsing, policy, and calendar behavior.
+- 54 automated tests pass across authentication, qualification, route contracts, provider parsing, policy, evidence freshness, email gating, and calendar behavior.
 - All six migrations apply to a fresh in-memory database.
 - TypeScript and the optimized Next.js production build pass.
 - The local 20-case benchmark smoke suite passes 20/20.
