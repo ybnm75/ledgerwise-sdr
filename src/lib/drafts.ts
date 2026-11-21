@@ -39,6 +39,14 @@ function hashDraft(subject: string, body: string) {
   return createHash("sha256").update(`${subject}\n${body}`).digest("hex");
 }
 
+export function draftPolicyResult(status: DraftRecord["status"], body: string) {
+  // A reviewer must always be able to reject unsafe content. Outbound policy
+  // applies only to content that can remain pending or become approved.
+  return status === "rejected"
+    ? { allowed: true, violations: [] as string[] }
+    : enforceOutboundPolicy(body);
+}
+
 function rowToDraft(row: Record<string, unknown>): DraftRecord {
   return {
     id: String(row.id),
@@ -79,7 +87,7 @@ export async function saveDraftRevision(input: {
   origin?: DraftRecord["origin"];
 }) {
   await ensureDatabase();
-  const policy = enforceOutboundPolicy(input.body);
+  const policy = draftPolicyResult(input.status, input.body);
   if (!policy.allowed) throw new Error(`Outbound policy blocked: ${policy.violations.join(", ")}.`);
   const existing = await latestDraft(input.companyId);
   const contentHash = hashDraft(input.subject, input.body);
