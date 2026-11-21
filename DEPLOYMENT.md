@@ -5,7 +5,7 @@
 Create free accounts or projects for:
 
 1. Turso
-2. Google AI Studio / Gemini Developer API
+2. GroqCloud
 3. Firecrawl
 4. Google Cloud Calendar API
 5. Resend
@@ -34,11 +34,11 @@ Generate:
 
 Add both to Vercel only. Provide the reviewer password in the submission email, never in the public repository.
 
-## 3. Gemini
+## 3. Groq
 
-Create a free API key in Google AI Studio. Add `GEMINI_API_KEY` and `GEMINI_MODEL` to Vercel and GitHub Actions. Keep billing disabled.
+Create a free GroqCloud API key. Add `GROQ_API_KEY` and `GROQ_MODEL=openai/gpt-oss-20b` to Vercel and GitHub Actions. Do not upgrade to a paid plan.
 
-This free tier is suitable for public-company research and synthetic case-study messages. Do not use it for confidential client messages without an appropriate data agreement.
+Enable Zero Data Retention in Groq Data Controls. This free tier is suitable for public-company research and synthetic case-study messages. Do not use it for confidential client messages without an appropriate data agreement.
 
 ## 4. Firecrawl
 
@@ -70,7 +70,7 @@ Delivery to any other address is rejected by the server.
 
 Create a Developer workspace and set its trace limit to 4,500. Add `LANGSMITH_API_KEY` to GitHub Actions. Do not enable paid products or extended retention.
 
-Run shard `1/2`, wait for Gemini's next daily free-tier reset, then run shard `2/2`. Combine their LangSmith experiment names into the 150-case release report and preserve the artifacts before the 14-day base-trace retention expires.
+Run the paced 150-case benchmark once, review every blocker, and preserve the artifact before the 14-day base-trace retention expires.
 
 ## 8. Vercel
 
@@ -94,7 +94,7 @@ After deployment verify `/api/health` returns:
 8. Fetch live Google slots and create one test event.
 9. Confirm the event appears in Bookings.
 10. Confirm Activity contains the approval, reply, ownership, suppression, and booking records.
-11. Run both benchmark shards, combine them, and review every blocker.
+11. Run the complete benchmark and review every blocker.
 
 ## Rollback
 

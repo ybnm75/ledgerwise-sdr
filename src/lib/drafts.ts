@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
 import { ensureDatabase, getDatabase, recordAuditEvent } from "@/lib/db";
-import { geminiJson } from "@/lib/gemini";
+import { groqJson } from "@/lib/groq";
 import { enforceOutboundPolicy } from "@/lib/policy";
 
 const DraftSelection = z.object({
@@ -128,7 +128,7 @@ export async function generateGroundedDraft(companyId: string, actorId: string) 
   if (!evidence.some((item) => item.kind === "commerce") || !evidence.some((item) => item.kind === "trigger")) {
     throw new Error("Verified commerce and trigger evidence are required before drafting.");
   }
-  const selection = await geminiJson({
+  const selection = await groqJson({
     operation: "outreach-draft",
     schema: selectionSchema,
     validator: DraftSelection,

@@ -20,8 +20,7 @@ const baseSelection = mode === "smoke"
   : replyCases;
 const selected = shard ? baseSelection.filter((_, index) => index % shard.total === shard.index - 1) : baseSelection;
 const modelEligibleCases = selected.filter((item) => !classifyReplyDeterministically(item.message)).length;
-if (mode !== "smoke" && !isRecovery && !shard) throw new Error("The Gemini free tier requires --shard=1/2 or --shard=2/2 for a full benchmark.");
-if (!isRecovery && modelEligibleCases > 19) throw new Error(`This shard could make ${modelEligibleCases} model calls; the free-tier ceiling is 19 to preserve one diagnostic call.`);
+if (!isRecovery && modelEligibleCases > 100) throw new Error(`This run could make ${modelEligibleCases} model calls; the project safety ceiling is 100.`);
 const datasetVersion = createHash("sha256").update(JSON.stringify(replyCases)).digest("hex").slice(0, 12);
 const shardLabel = shard ? `-shard-${shard.index}-of-${shard.total}` : "";
 const datasetName = `ledgerwise-replies-${datasetVersion}${shardLabel}`;
@@ -60,7 +59,7 @@ function summarize(rows: Array<{ caseItem: ReplyBenchmarkCase; output: Output }>
     generatedAt: new Date().toISOString(),
     dataset: { name: datasetName, version: datasetVersion, cases: rows.length, expectedCases: selected.length, suiteCases: replyCases.length, mode, shard: shardValue ?? null },
     experimentName: experimentName ?? null,
-    model: process.env.GEMINI_MODEL || "gemini-3.8-flash",
+    model: process.env.GROQ_MODEL || "openai/gpt-oss-20b",
     cost: { actualCashUsd: 0, freeTier: true, modelCalls: rows.filter((row) => row.output.source === "model").length, projectedPaidRateConfigured: false },
     latencyMs: { p50: percentile(latencies, 0.5), p95: percentile(latencies, 0.95), maximum: Math.max(...latencies, 0) },
     quality: {
@@ -72,7 +71,7 @@ function summarize(rows: Array<{ caseItem: ReplyBenchmarkCase; output: Output }>
       categories: categoryResults
     },
     release: { passed: blockers.length === 0, blockers },
-    limits: { langSmithBaseTraceCeiling: 4500, scheduledRunsPerMonth: 8, maximumBenchmarkCasesPerRun: 75, maximumModelCallsPerShard: 19 }
+    limits: { langSmithBaseTraceCeiling: 4500, scheduledRunsPerMonth: 4, maximumBenchmarkCasesPerRun: 150, maximumModelCallsPerRun: 100 }
   };
 }
 
@@ -109,8 +108,8 @@ async function langSmithRun() {
     data: datasetName,
     experimentPrefix: `ledgerwise-reply-${mode}`,
     description: "Rules-first reply benchmark with critical safety gates.",
-    metadata: { datasetVersion, model: process.env.GEMINI_MODEL || "gemini-3.8-flash", gitSha: process.env.GITHUB_SHA || "local", shard: shardValue ?? "none", modelEligibleCases },
-    maxConcurrency: 2,
+    metadata: { datasetVersion, model: process.env.GROQ_MODEL || "openai/gpt-oss-20b", gitSha: process.env.GITHUB_SHA || "local", shard: shardValue ?? "none", modelEligibleCases },
+    maxConcurrency: 1,
     uploadRuns: true,
     disableEvaluatorTracing: true,
     evaluators: [releaseEvaluator]

@@ -20,8 +20,8 @@ The resulting system keeps consequential decisions deterministic:
 
 - **Application:** Next.js 16 and TypeScript in one Vercel-compatible project.
 - **Database:** LibSQL locally and Turso in production, with six additive SQL migrations.
-- **Research:** Firecrawl v2 with a constrained direct-HTTP fallback, followed by Gemini structured extraction and exact-excerpt validation.
-- **Drafting and replies:** Gemini structured output behind deterministic pre- and post-model policy checks.
+- **Research:** Firecrawl v2 with a constrained direct-HTTP fallback, followed by Groq strict-schema extraction and exact-excerpt validation.
+- **Drafting and replies:** Groq strict-schema output behind deterministic pre- and post-model policy checks.
 - **Email:** Resend sandbox, restricted server-side to one configured test recipient.
 - **Calendar:** Google Calendar OAuth, free/busy lookup, deterministic business-hour slot calculation, and a final availability recheck before insertion.
 - **Evaluation:** A 150-case benchmark with LangSmith dataset and experiment support; deterministic safety evaluation remains authoritative.
@@ -31,7 +31,7 @@ The project deliberately avoids paid-only infrastructure and does not enable aut
 
 ## How the design changed
 
-The first implementation moved too quickly into code. Once we returned to a plan-first review, several weak assumptions became visible: mutable approvals, decorative takeover controls, static booking behavior, and older provider choices. Those were replaced with immutable draft revisions, enforced thread ownership, persistent conversations, real Google Calendar availability, Gemini, and an explicit benchmark.
+The first implementation moved too quickly into code. Once we returned to a plan-first review, several weak assumptions became visible: mutable approvals, decorative takeover controls, static booking behavior, and older provider choices. Those were replaced with immutable draft revisions, enforced thread ownership, persistent conversations, real Google Calendar availability, Groq, and an explicit benchmark.
 
 Public sources also could not reliably prove revenue, headcount, and named contacts for every company. The UI exposes those facts as verification gaps instead of estimating them. That is intentional: an incomplete honest record is safer than a polished invented one.
 
@@ -45,11 +45,11 @@ Public sources also could not reliably prove revenue, headcount, and named conta
 - Runtime smoke tests verified login protection, signed sessions, persistent threads, suppression, ownership, and safe reply routing.
 - Missing production credentials fail closed rather than simulating success.
 
-Turso persistence, Gemini access, Firecrawl scraping, Resend delivery, Google Calendar availability, and LangSmith authentication have been verified with the free provider accounts. The corrected two-shard 150-case experiment, live research ingestion, and event-creation smoke test remain pending. No provider result is claimed without evidence.
+Turso persistence, Groq strict output, Firecrawl research ingestion, Resend delivery, Google Calendar availability, and LangSmith authentication have been verified with the free provider accounts. The Groq-backed 150-case experiment passed every case, and a focused research run persisted exact-match evidence successfully; the Calendar event-creation smoke test remains pending. No provider result is claimed without evidence.
 
 ## Cost and privacy
 
-Current cash spend is **$0**. The target configuration uses free tiers for Vercel, Turso, Gemini, Firecrawl, Resend sandbox, Google Calendar, GitHub Actions, and LangSmith Developer. This is appropriate for the case-study workload, not an unlimited production SLA.
+Current cash spend is **$0**. The target configuration uses free tiers for Vercel, Turso, Groq, Firecrawl, Resend sandbox, Google Calendar, GitHub Actions, and LangSmith Developer. This is appropriate for the case-study workload, not an unlimited production SLA.
 
 The LangSmith dataset contains only synthetic benchmark messages. The repository contains no provider secrets, invented customer emails, or private prospect conversations. A real commercial rollout would require organization-level authentication, jurisdiction-specific outreach review, data-processing agreements, monitoring, and a paid-capacity decision.
 

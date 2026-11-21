@@ -29,10 +29,10 @@ Open **Bookings**, request live availability, and choose a returned slot. Explai
 
 ## 7:00–8:30 — Audit and architecture
 
-Open **Activity** and show the approval, ownership, suppression, reply, send, and booking records. Then show `ARCHITECTURE.md`: deterministic gates surround Gemini, provider calls are idempotent, secrets stay server-side, and Turso provides durable state.
+Open **Activity** and show the approval, ownership, suppression, reply, send, and booking records. Then show `ARCHITECTURE.md`: deterministic gates surround Groq, provider calls are idempotent, secrets stay server-side, and Turso provides durable state.
 
 ## 8:30–9:30 — Evidence and limitations
 
 State the verified results: 43 automated tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, and 20/20 local benchmark smoke cases.
 
-Be explicit that the live provider connection checks pass, while the corrected two-shard 150-case Gemini/LangSmith release result, scheduled research run, and Calendar event-creation smoke test remain pending. Finish with the zero-cost deployment steps in `DEPLOYMENT.md`.
+Be explicit that the live provider checks, focused research ingestion, and 150-case Groq/LangSmith release result pass, while the complete scheduled research run and Calendar event-creation smoke test remain pending. Finish with the zero-cost deployment steps in `DEPLOYMENT.md`.

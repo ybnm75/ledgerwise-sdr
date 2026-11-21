@@ -1,186 +1,80 @@
 {
-  "generatedAt": "2026-11-21T09:05:34.093Z",
+  "generatedAt": "2026-11-21T09:33:51.571Z",
   "dataset": {
-    "name": "ledgerwise-replies-faafdfc1285d-shard-1-of-2",
+    "name": "ledgerwise-replies-faafdfc1285d",
     "version": "faafdfc1285d",
-    "cases": 75,
-    "expectedCases": 75,
+    "cases": 150,
+    "expectedCases": 150,
     "suiteCases": 150,
     "mode": "full",
-    "shard": "1/2"
+    "shard": null
   },
-  "experimentName": "ledgerwise-reply-full-668b925f",
-  "model": "gemini-3.8-flash",
+  "experimentName": "ledgerwise-reply-full-b3851555",
+  "model": "openai/gpt-oss-20b",
   "cost": {
     "actualCashUsd": 0,
     "freeTier": true,
-    "modelCalls": 0,
+    "modelCalls": 30,
     "projectedPaidRateConfigured": false
   },
   "latencyMs": {
-    "p50": 0.028500000000349246,
-    "p95": 60207.34090000001,
-    "maximum": 60856.6701
+    "p50": 0.029099999999743886,
+    "p95": 5150.6878,
+    "maximum": 5392.1516
   },
   "quality": {
-    "passed": 60,
-    "total": 75,
-    "passRate": 0.8,
-    "criticalPassed": 55,
-    "criticalTotal": 55,
+    "passed": 150,
+    "total": 150,
+    "passRate": 1,
+    "criticalPassed": 110,
+    "criticalTotal": 110,
     "categories": {
+      "bot": {
+        "passed": 15,
+        "total": 15
+      },
       "stop": {
-        "passed": 13,
-        "total": 13
+        "passed": 25,
+        "total": 25
       },
-      "objection": {
-        "passed": 0,
-        "total": 10
+      "booking": {
+        "passed": 25,
+        "total": 25
       },
-      "pricing": {
+      "normal": {
         "passed": 10,
         "total": 10
       },
-      "booking": {
-        "passed": 12,
-        "total": 12
-      },
-      "injection": {
-        "passed": 5,
-        "total": 5
-      },
-      "compliance": {
-        "passed": 7,
-        "total": 7
-      },
-      "bot": {
-        "passed": 8,
-        "total": 8
-      },
-      "normal": {
-        "passed": 0,
-        "total": 5
+      "pricing": {
+        "passed": 20,
+        "total": 20
       },
       "ambiguous": {
-        "passed": 5,
-        "total": 5
+        "passed": 10,
+        "total": 10
+      },
+      "compliance": {
+        "passed": 15,
+        "total": 15
+      },
+      "objection": {
+        "passed": 20,
+        "total": 20
+      },
+      "injection": {
+        "passed": 10,
+        "total": 10
       }
     }
   },
   "release": {
-    "passed": false,
-    "blockers": [
-      {
-        "id": "objection-17",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-01",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-05",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-07",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-09",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-13",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "normal-01",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "normal-09",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-11",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "normal-05",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-15",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "normal-07",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-03",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "normal-03",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      },
-      {
-        "id": "objection-19",
-        "expected": "reply",
-        "action": "handoff",
-        "intent": "unknown",
-        "reason": "The AI provider is unavailable or returned an invalid decision, so the thread is routed to a human."
-      }
-    ]
+    "passed": true,
+    "blockers": []
   },
   "limits": {
     "langSmithBaseTraceCeiling": 4500,
-    "scheduledRunsPerMonth": 8,
-    "maximumBenchmarkCasesPerRun": 75,
-    "maximumModelCallsPerShard": 19
+    "scheduledRunsPerMonth": 4,
+    "maximumBenchmarkCasesPerRun": 150,
+    "maximumModelCallsPerRun": 100
   }
 }

@@ -31,7 +31,7 @@ Critical policies use deterministic evaluators:
 - Risk flags and confidence threshold
 - Schema validity
 
-Human review scores relevance, clarity, naturalness, and sales appropriateness from 1–5. A Gemini judge may be used only as secondary evidence for these subjective dimensions; it cannot override a safety gate.
+Human review scores relevance, clarity, naturalness, and sales appropriateness from 1–5. A model judge may be used only as secondary evidence for these subjective dimensions; it cannot override a safety gate.
 
 ## Release gates
 
@@ -51,22 +51,20 @@ Any critical failure blocks release independently of average quality.
 
 ## LangSmith
 
-The full suite is split into two deterministic 75-case shards because the selected Gemini free tier allows 20 requests per day. Each shard contains exactly 15 model-dependent cases and a combined recovery report covers all 150 cases without making another model call.
+The full suite evaluates all 150 deterministic cases in one run. Only 30 cases need the model; the remaining safety-sensitive cases are resolved by deterministic policy. Model calls are serialized and spaced five seconds apart to respect Groq's free token-per-minute allowance.
 
 ```bash
-node --env-file=.env.local --import tsx scripts/benchmark.ts --shard=1/2
-# Run after the provider's next daily reset:
-node --env-file=.env.local --import tsx scripts/benchmark.ts --shard=2/2
-# Combine the two LangSmith experiment names without new model calls:
-node --env-file=.env.local --import tsx scripts/benchmark.ts --combine=<experiment-1>,<experiment-2>
+node --env-file=.env.local --import tsx scripts/benchmark.ts
+# Recover a completed LangSmith experiment without new model calls:
+node --env-file=.env.local --import tsx scripts/benchmark.ts --recover=<experiment-name>
 ```
 
 Free-tier protections:
 
 - Developer plan only
-- 75 examples per scheduled shard and complete 150-case coverage across Monday and Tuesday
-- Exactly 15 Gemini calls per shard, leaving five daily free calls for diagnostics
-- At most eight scheduled shard runs per month
+- 150 examples per scheduled run with exactly 30 model-eligible cases
+- Five-second provider pacing and a 100-call run guard
+- At most four scheduled runs per month
 - Evaluator tracing disabled
 - No tuned/paid evaluators, Engine, Gateway, or extended retention
 - Workspace trace ceiling configured to 4,500
@@ -77,7 +75,7 @@ Only synthetic benchmark messages are stored in the LangSmith dataset. Productio
 
 `npm run benchmark:smoke` executes 20 balanced deterministic cases without model credentials. Current result: 20/20 pass, with p95 below 1 ms on the local run.
 
-Provider connectivity is verified. An initial single-run experiment exposed two real integration defects: the raw REST adapter read an SDK-only `output_text` convenience field, and the benchmark attempted more than Gemini's 20 daily free calls. Its recovered 117/150 output is retained as diagnostic evidence, not presented as a valid model release result. The parser and fail-open reporting are fixed; the two corrected free-tier shard runs remain pending the daily quota reset.
+Groq connectivity, strict-schema output, and the complete release suite are verified. Experiment `ledgerwise-reply-full-b3851555` passed 150/150 cases, including all 110 critical cases, with 30 successful model calls, 5.15-second p95 end-to-end latency under deliberate free-tier pacing, $0 cash cost, and no blockers. The earlier Gemini run remains diagnostic evidence of a provider-capacity failure, not a valid release result.
 
 ## Cost report
 

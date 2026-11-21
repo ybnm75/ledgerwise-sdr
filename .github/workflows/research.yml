@@ -28,10 +28,11 @@ jobs:
         env:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+          GROQ_MIN_REQUEST_INTERVAL_MS: 30000
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           RESEARCH_TRIGGER: schedule
-          RESEARCH_MAX_COMPANIES: 40
-          RESEARCH_MAX_PAGES: 5
-          RESEARCH_MAX_FIRECRAWL_CREDITS: 800
+          RESEARCH_MAX_COMPANIES: 20
+          RESEARCH_MAX_PAGES: 3
+          RESEARCH_MAX_FIRECRAWL_CREDITS: 200

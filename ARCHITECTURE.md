@@ -5,11 +5,11 @@
 ```text
 GitHub Actions                    Vercel
   scheduled research ----------> Next.js operator workspace
-  two-day benchmark shards        authenticated route handlers
+  paced weekly benchmark          authenticated route handlers
           |                                  |
           +---------------- Turso -----------+
                               |
-          Gemini · Firecrawl · Google Calendar · Resend sandbox · LangSmith
+          Groq · Firecrawl · Google Calendar · Resend sandbox · LangSmith
 ```
 
 Vercel serves the application and synchronous APIs. Long research runs execute in GitHub Actions. Turso is the durable source of truth; a file database is rejected on Vercel.
@@ -19,7 +19,7 @@ Vercel serves the application and synchronous APIs. Long research runs execute i
 1. Operator UI: task queues and evidence, not provider internals.
 2. Route handlers: authentication, origin checks, schema validation, and authorization.
 3. Policy core: deterministic approval, suppression, identity, pricing, confidence, and booking rules.
-4. Provider adapters: Gemini, Firecrawl, Google Calendar, Resend sandbox, and LangSmith.
+4. Provider adapters: Groq, Firecrawl, Google Calendar, Resend sandbox, and LangSmith.
 5. Persistence: migrations, immutable revisions, audit events, quota counters, and recovery states.
 
 ## Research pipeline
@@ -59,7 +59,7 @@ inbound
   |-- bot question -----------------------> honest fixed disclosure
   |-- booking intent ---------------------> scheduling requested
   |-- human owns thread ------------------> handoff
-  |-- everything else -> structured Gemini decision
+  |-- everything else -> structured Groq decision
                          |-- risk flag ----> handoff
                          |-- confidence < .80 -> handoff
                          |-- policy failure --> handoff
@@ -104,17 +104,17 @@ This shared account is intentionally limited to the case-study review. A real or
 
 ## Free-tier protection
 
-- Maximum 40 research companies and five pages each.
-- Maximum 800 Firecrawl credits per research run.
-- 500 internal Gemini calls per 30-day operation window.
-- Weekly research plus Monday/Tuesday benchmark shard schedules.
-- LangSmith shard size capped at 75 examples, Gemini calls capped below 20 per shard, and workspace target capped at 4,500 traces.
+- Maximum 20 research companies and three pages each.
+- Maximum 200 Firecrawl credits per research run.
+- 900 internal Groq calls per 24-hour application window.
+- Weekly research plus one paced Monday benchmark schedule.
+- LangSmith runs are capped at 150 examples and 100 model-eligible calls; the workspace target remains 4,500 traces.
 - Resend restricted to one configured test address.
 - No automatic paid-overage configuration.
 
 ## Failure behavior
 
-- Missing Gemini: nuanced messages hand off; drafting and research fail visibly.
+- Missing Groq: nuanced messages hand off; drafting and research fail visibly.
 - Missing Firecrawl: research uses the public direct-fetch fallback where safe.
 - Missing Google Calendar: availability and booking return configuration errors.
 - Missing Resend: no email is sent.

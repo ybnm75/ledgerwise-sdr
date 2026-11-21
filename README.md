@@ -17,7 +17,7 @@ Scheduled research -> exact source excerpts -> deterministic qualification
                                               v
 Grounded draft -> edit/reject/approve exact revision -> sandbox delivery
                                               |
-Inbound demo reply -> hard rules -> structured Gemini decision -> reply / handoff / scheduling
+Inbound demo reply -> hard rules -> structured Groq decision -> reply / handoff / scheduling
                            |                                |
                        suppression                     audit event
 ```
@@ -26,21 +26,21 @@ Inbound demo reply -> hard rules -> structured Gemini decision -> reply / handof
 
 - Versioned SQL migrations and durable LibSQL/Turso persistence.
 - Signed HTTP-only reviewer sessions, origin checks, login throttling, and security headers.
-- Weekly/manual GitHub Actions research pipeline capped at 40 companies, five pages per company, and 800 Firecrawl credits.
+- Weekly/manual GitHub Actions research pipeline capped at 20 companies, three pages per company, and 200 Firecrawl credits.
 - Firecrawl v2 with a direct-fetch fallback and private-network/SSRF rejection.
-- Gemini structured extraction; excerpts are stored only when they occur in the captured source text.
+- Groq strict-schema extraction; excerpts are stored only when they occur in the captured source text.
 - Deterministic qualification with mandatory evidence gates and visible gaps.
 - Immutable outreach revisions; editing changes the content hash and requires a new approval.
 - Sandbox-only Resend delivery with persisted idempotency and failure states.
 - Persistent Demo Inbox, rules-first replies, human ownership, suppression, and duplicate-message protection.
 - Google Calendar free/busy calculation, working hours, buffers, minimum notice, DST handling, availability recheck, and idempotent event creation.
 - Today, Research, Outreach, Conversations, Bookings, and Activity operator screens.
-- LangSmith-compatible 150-case reply benchmark, split into two 75-case free-tier shards, with latency, safety, quality, and zero-cash cost reporting.
+- LangSmith-compatible 150-case reply benchmark, paced for the free provider token limit, with latency, safety, quality, and zero-cash cost reporting.
 - Public health status, CI verification, scheduled research, and scheduled benchmark workflows.
 
 ## Honest current state
 
-Local provider checks have verified Turso migrations, Gemini model access, a Firecrawl scrape, Google Calendar availability, Resend sandbox delivery, and LangSmith authentication. The corrected two-shard 150-case model experiment and scheduled research run remain production gates.
+Local provider checks have verified Turso migrations, Groq strict JSON output, Firecrawl-backed research ingestion, Google Calendar availability, Resend sandbox delivery, and LangSmith authentication. The Groq-backed LangSmith release experiment passed 150/150 cases, and a one-company research smoke run completed with exact-excerpt verification.
 
 The repository includes 30 real-company candidates as a reproducible fallback. They are not automatically labeled qualified: missing revenue, employee count, or decision-maker evidence remains visible.
 
@@ -51,7 +51,7 @@ The repository includes 30 real-company candidates as a reproducible fallback. T
 | Application | Vercel Hobby |
 | Repository, CI, schedules | GitHub Free and Actions |
 | Database | Turso Free |
-| Model | Gemini Developer API Free Tier |
+| Model | Groq Free Tier (`openai/gpt-oss-20b`) |
 | Web extraction | Firecrawl Free Tier plus direct HTTP fallback |
 | Calendar | Google Calendar API |
 | Test delivery | Resend Free sandbox |
@@ -78,8 +78,7 @@ Open `http://localhost:3000`. Without `.env.local`, local development uses revie
 npm run db:migrate       # Apply versioned migrations
 npm run research         # Run capped research pipeline; provider keys required
 npm run benchmark:smoke  # 20 deterministic safety cases
-npm run benchmark -- --shard=1/2  # First 75-case free-tier shard
-npm run benchmark -- --shard=2/2  # Second shard after the daily reset
+npm run benchmark       # Complete paced 150-case LangSmith evaluation
 npm run check            # TypeScript, unit tests, production build
 ```
 
@@ -100,6 +99,6 @@ Current credential-free result:
 - Authentication smoke test: unauthenticated 401, signed login cookie, protected 200.
 - Conversation smoke test: bot disclosure, suppression, human takeover, and handoff all pass.
 
-The combined corrected 150-case LangSmith result and scheduled research output remain deployment gates, not assumed successes.
+The 150-case LangSmith release result and focused research smoke test pass. The first complete scheduled research run remains an operational check.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md), [BENCHMARK.md](./BENCHMARK.md), [DEPLOYMENT.md](./DEPLOYMENT.md), [HOW_I_WORKED.md](./HOW_I_WORKED.md), and [LOOM_SCRIPT.md](./LOOM_SCRIPT.md).
