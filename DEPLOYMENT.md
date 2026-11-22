@@ -90,14 +90,15 @@ After deployment verify `/api/health` returns:
 2. Open Research and confirm the latest run and source excerpts.
 3. For one visible gap, open **Verify public evidence**, submit an approved public URL and exact excerpt, and confirm the evidence card, score, gaps, and Activity ledger update.
 4. Confirm unsupported or mismatched excerpts are rejected and that unqualified leads cannot be approved. If a qualified lead exists, generate, edit, approve, and reload its current draft.
-5. Verify an edit after approval creates a pending revision and that stale evidence blocks delivery.
-6. For a qualified, approved lead only, send one message to the configured sandbox recipient. Otherwise verify the sandbox provider separately and preserve the qualification block.
-7. Submit bot, stop, booking, compliance, and prompt-injection Demo Inbox messages.
-8. Take over a thread and verify the agent cannot send.
-9. Fetch live Google slots and create one test event.
-10. Confirm the event appears in Bookings.
-11. Confirm Activity contains evidence verification, approval, reply, ownership, suppression, and booking records.
-12. Run the complete benchmark and review every blocker.
+5. Run the SDR Agent and confirm its step inspector ends at `awaiting approval`, displays verified citations and metrics, and never sends automatically.
+6. Verify an edit after approval creates a pending revision and that stale evidence blocks delivery.
+7. For a qualified, approved lead only, send one message to the configured sandbox recipient. Otherwise verify the sandbox provider separately and preserve the qualification block.
+8. Submit bot, stop, booking, compliance, and prompt-injection Demo Inbox messages.
+9. Take over a thread and verify the agent cannot send.
+10. Fetch live Google slots and create one test event.
+11. Confirm the event appears in Bookings.
+12. Confirm Activity contains agent runs, evidence verification, approval, reply, ownership, suppression, and booking records.
+13. Run the complete benchmark and review every blocker.
 
 ## Rollback
 

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Bot,
   CalendarDays,
   History,
   LayoutDashboard,
@@ -27,6 +28,19 @@ import { ResearchStatus } from "@/components/research-status";
 
 type View = "today" | "research" | "outreach" | "conversations" | "bookings" | "activity";
 type EvidenceKind = Lead["evidence"][number]["kind"];
+type AgentRun = {
+  id: string;
+  status: "blocked" | "awaiting_approval";
+  nextAction: string;
+  model: string;
+  durationMs: number;
+  cashCostUsd: number;
+  traceEnabled: boolean;
+  steps: Array<{ id: string; label: string; status: "complete" | "blocked" | "waiting"; summary: string; latencyMs: number }>;
+  citations: Array<{ id: string; kind: string; claim: string; url: string }>;
+  usage: { inputTokens: number; outputTokens: number; providerLatencyMs: number };
+  draft?: { subject: string; body: string; status: DraftStatus; version: number };
+};
 
 const evidenceKinds: Array<{ value: EvidenceKind; label: string }> = [
   { value: "location", label: "US location" },
@@ -63,6 +77,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
   const [sending, setSending] = useState(false);
   const [mobileDetail, setMobileDetail] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [agentRun, setAgentRun] = useState<AgentRun | null>(null);
   const [evidenceKind, setEvidenceKind] = useState<EvidenceKind>("location");
   const [evidenceClaim, setEvidenceClaim] = useState("");
   const [evidenceExcerpt, setEvidenceExcerpt] = useState("");
@@ -97,6 +112,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
     setEvidenceUrl("");
     setContactName("");
     setContactRole("");
+    setAgentRun(null);
     setMobileDetail(true);
   }
 
@@ -187,18 +203,23 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
     setLeads((current) => current.map((lead) => lead.id === selected.id ? { ...lead, draft: { ...lead.draft, subject, status: "pending" } } : lead));
   }
 
-  async function generateDraft() {
+  async function runAgent() {
     if (!selected) return;
     setGenerating(true);
     setNotice("");
+    setAgentRun(null);
     try {
-      const response = await fetch(`/api/leads/${selected.id}/drafts/generate`, { method: "POST" });
+      const response = await fetch(`/api/leads/${selected.id}/agent/run`, { method: "POST" });
       const body = await response.json();
-      if (!response.ok) throw new Error(body.error ?? "The draft could not be generated.");
-      setLeads((current) => current.map((lead) => lead.id === selected.id ? { ...lead, draft: { subject: body.data.subject, body: body.data.body, status: body.data.status } } : lead));
-      setNotice(`Agent draft revision ${body.data.version} is ready for review.`);
+      if (!response.ok) throw new Error(body.error ?? "The SDR agent could not complete this run.");
+      const run = body.data as AgentRun;
+      setAgentRun(run);
+      if (run.draft) {
+        setLeads((current) => current.map((lead) => lead.id === selected.id ? { ...lead, draft: { subject: run.draft!.subject, body: run.draft!.body, status: run.draft!.status } } : lead));
+      }
+      setNotice(run.nextAction);
     } catch (caught) {
-      setNotice(caught instanceof Error ? caught.message : "The draft could not be generated.");
+      setNotice(caught instanceof Error ? caught.message : "The SDR agent could not complete this run.");
     } finally {
       setGenerating(false);
     }
@@ -422,9 +443,38 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                     {selected.status !== "qualified" ? (
                       <p className="notice">Approval is locked until this lead passes the required qualification gates.</p>
                     ) : null}
-                    <button className="button button--quiet" type="button" onClick={generateDraft} disabled={generating || !hasRequiredDraftEvidence} aria-busy={generating}>
-                      {generating ? "Generating…" : "Generate from verified evidence"}
+                    <button className="button button--quiet" type="button" onClick={runAgent} disabled={generating} aria-busy={generating}>
+                      <Bot size={17} aria-hidden="true" /> {generating ? "Running SDR agent..." : "Run SDR agent"}
                     </button>
+                    {agentRun ? (
+                      <section className="agent-run" data-status={agentRun.status} aria-labelledby="agent-run-title">
+                        <div className="agent-run__heading">
+                          <div><Bot size={18} aria-hidden="true" /><h4 id="agent-run-title">SDR Agent run</h4></div>
+                          <span>{agentRun.status.replaceAll("_", " ")}</span>
+                        </div>
+                        <ol className="agent-run__steps">
+                          {agentRun.steps.map((step) => (
+                            <li key={step.id} data-status={step.status}>
+                              <span aria-hidden="true" />
+                              <div><strong>{step.label}</strong><p>{step.summary}</p></div>
+                              <small className="fig">{step.latencyMs} ms</small>
+                            </li>
+                          ))}
+                        </ol>
+                        <div className="agent-run__citations">
+                          <strong>{agentRun.citations.length} verified citations</strong>
+                          <div>{agentRun.citations.map((citation) => <a href={citation.url} target="_blank" rel="noreferrer" key={citation.id}>{citation.kind}</a>)}</div>
+                        </div>
+                        <p className="agent-run__next"><strong>Next human action:</strong> {agentRun.nextAction}</p>
+                        <footer>
+                          <span>{agentRun.model}</span>
+                          <span className="fig">{agentRun.usage.inputTokens + agentRun.usage.outputTokens} tokens</span>
+                          <span className="fig">{agentRun.durationMs} ms</span>
+                          <span>${agentRun.cashCostUsd.toFixed(2)} cash cost</span>
+                          <span>{agentRun.traceEnabled ? "LangSmith enabled" : "Local trace only"}</span>
+                        </footer>
+                      </section>
+                    ) : null}
                     {selected.draft.status === "approved" ? (
                       <div className="send-panel">
                         <p className="sandbox-label">Demo delivery mode · only the configured test recipient is allowed.</p>

@@ -28,6 +28,7 @@ export async function groqJson<T>(input: {
   schema: Record<string, unknown>;
   validator: z.ZodType<T>;
   operation: string;
+  runId?: string;
 }) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) throw new Error("The free-tier AI provider is not configured.");
@@ -65,7 +66,8 @@ export async function groqJson<T>(input: {
     units: 1,
     inputTokens: Number(usage.prompt_tokens || 0),
     outputTokens: Number(usage.completion_tokens || 0),
-    latencyMs: Date.now() - started
+    latencyMs: Date.now() - started,
+    runId: input.runId
   });
   if (!response.ok) {
     const providerError = body.error as { message?: unknown } | undefined;

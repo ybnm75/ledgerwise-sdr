@@ -48,6 +48,8 @@ Mandatory qualification gates are ecommerce activity, US location, a current tri
 
 ## Outreach state machine
 
+The bounded SDR Agent orchestrates existing tools rather than bypassing them: inspect lead, retrieve verified citations, evaluate deterministic qualification, generate a structured Groq evidence selection, run outbound policy checks, and stop for human approval. Every run records step summaries, latency, token usage, zero-cash cost, audit events, and an optional LangSmith trace. Delivery remains outside the agent and requires approval of the exact immutable draft revision.
+
 ```text
 generated -> pending review -> approved -> sending -> sent
      |              |             |

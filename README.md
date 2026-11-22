@@ -29,6 +29,7 @@ When public crawling cannot establish a gate, the Research workspace includes a 
 ## What is implemented
 
 - Versioned SQL migrations and durable LibSQL/Turso persistence.
+- A bounded SDR Agent with explicit tools, qualification and policy gates, human approval, visible step traces, latency/token reporting, and optional LangSmith runtime tracing.
 - Signed HTTP-only reviewer sessions, origin checks, login throttling, and security headers.
 - Weekly/manual GitHub Actions research pipeline capped at 20 companies, eight Scrapy pages per company, and 200 fallback Firecrawl credits.
 - Robots-aware, same-site Scrapy discovery with capped Firecrawl and direct-fetch fallbacks.
@@ -94,7 +95,7 @@ Copy [.env.example](./.env.example). Production requires durable Turso credentia
 
 Current credential-free result:
 
-- 67 JavaScript/TypeScript tests and five Python crawler tests pass.
+- 74 JavaScript/TypeScript tests and five Python crawler tests pass.
 - All six migrations apply to an empty in-memory database.
 - TypeScript passes.
 - The optimized Next.js production build passes.

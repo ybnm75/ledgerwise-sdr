@@ -12,6 +12,8 @@ Open **Research** and select a lead. Show the weighted score, source links, exac
 
 Open **Outreach**. Show that incomplete research disables generation and approval instead of presenting a false success state. If a qualified lead is available, generate a draft, show its current evidence, edit it, and approve that exact revision. Explain that another edit makes it pending again and that delivery is restricted to the configured Resend sandbox recipient.
 
+Run the **SDR Agent** for the qualified lead. Walk through its visible inspect, retrieval, qualification, generation, policy, and human-approval steps. Point out citations, model, tokens, latency, zero cash cost, and LangSmith trace status. Emphasize that the agent stops before delivery.
+
 ## 3:00–5:45 — Conversation safety
 
 Open **Conversations** and submit these Demo Inbox messages:
@@ -33,6 +35,6 @@ Open **Activity** and show the approval, ownership, suppression, reply, send, an
 
 ## 8:30–9:30 — Evidence and limitations
 
-State the verified results: 67 JavaScript/TypeScript tests plus five Python crawler tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, 20/20 local benchmark smoke cases, 150/150 LangSmith release cases, and a successful scheduled evidence run with safe rejection of unsupported records.
+State the verified results: 74 JavaScript/TypeScript tests plus five Python crawler tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, 20/20 local benchmark smoke cases, 150/150 LangSmith release cases, and a successful scheduled evidence run with safe rejection of unsupported records.
 
 Be explicit that the live provider checks, focused research ingestion, 150-case Groq/LangSmith release result, complete scheduled research run, and Calendar event-creation smoke test all pass. Finish with the zero-cost deployment architecture and the remaining demo-only limitations in `DEPLOYMENT.md`.
