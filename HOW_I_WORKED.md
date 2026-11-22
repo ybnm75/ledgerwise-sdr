@@ -37,7 +37,7 @@ Public sources also could not reliably prove revenue, headcount, and named conta
 
 ## Validation performed
 
-- 61 JavaScript/TypeScript tests and five Python crawler tests pass across authentication, qualification, route contracts, provider parsing, policy, evidence freshness, email gating, calendar behavior, page selection, and same-site crawling.
+- 67 JavaScript/TypeScript tests and five Python crawler tests pass across authentication, qualification, route contracts, provider parsing, policy, evidence freshness, email gating, calendar behavior, page selection, and same-site crawling.
 - All six migrations apply to a fresh in-memory database.
 - TypeScript and the optimized Next.js production build pass.
 - The local 20-case benchmark smoke suite passes 20/20.

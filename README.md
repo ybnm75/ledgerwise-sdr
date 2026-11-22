@@ -24,6 +24,8 @@ Inbound demo reply -> hard rules -> structured Groq decision -> reply / handoff 
 
 Scheduled research uses free, robots-aware Scrapy discovery for first-party leadership, press, location, hiring, and company pages. Firecrawl is retained only as a capped fallback for JavaScript-only content. Qualification requires exact excerpts for ecommerce activity, US location, a current trigger, a named decision-maker, and a verified scale signal.
 
+When public crawling cannot establish a gate, the Research workspace includes a human evidence-review flow. The reviewer supplies an approved public URL, supported claim, and exact excerpt; the server independently re-fetches the page, blocks private targets, verifies the excerpt, stores the snapshot, recalculates qualification, and records the action in the audit ledger.
+
 ## What is implemented
 
 - Versioned SQL migrations and durable LibSQL/Turso persistence.
@@ -44,7 +46,7 @@ Scheduled research uses free, robots-aware Scrapy discovery for first-party lead
 
 Local and production provider checks have verified Turso migrations, Groq strict JSON output, Firecrawl-backed research ingestion, Google Calendar booking and invitation delivery, Resend sandbox delivery, and LangSmith authentication. The Groq-backed LangSmith release experiment passed 150/150 cases. The first complete scheduled research run processed 20 companies, accepted 17 evidence-backed records, and safely rejected three unsupported records.
 
-The repository includes 30 real-company candidates as a reproducible fallback. They are not automatically labeled qualified: missing revenue, employee count, or decision-maker evidence remains visible.
+The repository includes 30 real-company candidates as a reproducible fallback. They are not automatically labeled qualified: missing location, current trigger, scale, or decision-maker evidence remains visible until verified.
 
 ## Zero-cost stack
 
@@ -92,7 +94,7 @@ Copy [.env.example](./.env.example). Production requires durable Turso credentia
 
 Current credential-free result:
 
-- 61 JavaScript/TypeScript tests and five Python crawler tests pass.
+- 67 JavaScript/TypeScript tests and five Python crawler tests pass.
 - All six migrations apply to an empty in-memory database.
 - TypeScript passes.
 - The optimized Next.js production build passes.

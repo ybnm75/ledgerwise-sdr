@@ -35,9 +35,14 @@ schedule/manual trigger
   -> verify excerpt occurs in captured text
   -> deterministic qualification
   -> human review queue
+  -> reviewer may submit an approved public URL + exact excerpt
+  -> server re-fetches source, blocks private targets, and verifies excerpt
+  -> atomic evidence, qualification, snapshot, and audit update
 ```
 
 The model cannot directly qualify a company. It proposes structured evidence. Application code validates the source index and exact excerpt, then calculates the score from unique evidence classes.
+
+Reviewer-supplied evidence follows the same trust boundary: pasted claims do not count by themselves. The server resolves and fetches the public source, rejects private/internal addresses and unsafe redirects, confirms the normalized excerpt exists, stores a content hash, then recalculates the full qualification policy. Contact evidence additionally requires the reviewer to enter the verified business name and role.
 
 Mandatory qualification gates are ecommerce activity, US location, a current trigger, a named decision-maker, and a verified scale signal. Scale can be supported by employee count, revenue, funding, store or warehouse expansion, customer or order volume, or quantified hiring activity. Every claim still requires an exact public-source excerpt; the model cannot infer scale.
 

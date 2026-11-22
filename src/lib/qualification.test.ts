@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { qualificationBand, scoreEvidence } from "@/lib/qualification";
+import { evaluateQualificationKinds, qualificationBand, scoreEvidence } from "@/lib/qualification";
 import type { Evidence } from "@/lib/types";
 
 const evidence = (kind: Evidence["kind"]): Evidence => ({
@@ -25,5 +25,10 @@ describe("qualification", () => {
     expect(qualificationBand(80)).toBe("Strong fit");
     expect(qualificationBand(60)).toBe("Review");
     expect(qualificationBand(59)).toBe("Research needed");
+  });
+
+  it("qualifies only when every mandatory gate and one scale signal are verified", () => {
+    expect(evaluateQualificationKinds(["commerce", "location", "trigger", "contact", "scale"])).toMatchObject({ score: 80, band: "qualified", gaps: [] });
+    expect(evaluateQualificationKinds(["commerce", "location", "trigger", "size", "revenue", "scale"]).band).not.toBe("qualified");
   });
 });

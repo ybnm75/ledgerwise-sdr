@@ -10,12 +10,13 @@ import {
   Inbox,
   MessageSquareText,
   Pencil,
+  Plus,
   Search,
   ShieldCheck,
   UserRoundCheck,
   X
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import type { DraftStatus, Lead } from "@/lib/types";
 import { ConversationDesk } from "@/components/conversation-desk";
 import { BookingDesk } from "@/components/booking-desk";
@@ -25,6 +26,17 @@ import { ActivityDesk } from "@/components/activity-desk";
 import { ResearchStatus } from "@/components/research-status";
 
 type View = "today" | "research" | "outreach" | "conversations" | "bookings" | "activity";
+type EvidenceKind = Lead["evidence"][number]["kind"];
+
+const evidenceKinds: Array<{ value: EvidenceKind; label: string }> = [
+  { value: "location", label: "US location" },
+  { value: "trigger", label: "Current trigger" },
+  { value: "scale", label: "Scale signal" },
+  { value: "size", label: "Employee count" },
+  { value: "revenue", label: "Revenue" },
+  { value: "contact", label: "Decision-maker" },
+  { value: "commerce", label: "Ecommerce activity" }
+];
 
 function leadBand(lead: Lead) {
   if (lead.status === "qualified") return "Strong fit";
@@ -51,6 +63,14 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
   const [sending, setSending] = useState(false);
   const [mobileDetail, setMobileDetail] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [evidenceKind, setEvidenceKind] = useState<EvidenceKind>("location");
+  const [evidenceClaim, setEvidenceClaim] = useState("");
+  const [evidenceExcerpt, setEvidenceExcerpt] = useState("");
+  const [evidenceUrl, setEvidenceUrl] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactRole, setContactRole] = useState("");
+  const [evidenceNotice, setEvidenceNotice] = useState("");
+  const [verifyingEvidence, setVerifyingEvidence] = useState(false);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -71,7 +91,62 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
     setNotice("");
     setRecipient("");
     setEditing(false);
+    setEvidenceNotice("");
+    setEvidenceClaim("");
+    setEvidenceExcerpt("");
+    setEvidenceUrl("");
+    setContactName("");
+    setContactRole("");
     setMobileDetail(true);
+  }
+
+  async function submitReviewedEvidence(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selected) return;
+    setVerifyingEvidence(true);
+    setEvidenceNotice("Fetching the public source and verifying the exact excerpt...");
+    try {
+      const response = await fetch(`/api/leads/${selected.id}/evidence`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: evidenceKind,
+          claim: evidenceClaim,
+          excerpt: evidenceExcerpt,
+          sourceUrl: evidenceUrl,
+          ...(evidenceKind === "contact" ? { contactName, contactRole } : {})
+        })
+      });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? "The evidence could not be verified.");
+      setLeads((current) => current.map((lead) => {
+        if (lead.id !== selected.id) return lead;
+        const withoutDuplicate = lead.evidence.filter((item) => item.id !== body.data.evidence.id);
+        return {
+          ...lead,
+          evidence: [body.data.evidence, ...withoutDuplicate],
+          score: body.data.score,
+          status: body.data.status,
+          rationale: body.data.rationale,
+          gaps: body.data.gaps,
+          location: body.data.location ?? lead.location,
+          contactName: body.data.contactName ?? lead.contactName,
+          contactRole: body.data.contactRole ?? lead.contactRole
+        };
+      }));
+      setEvidenceNotice(body.data.status === "qualified"
+        ? "Source verified. This lead now passes every qualification gate."
+        : `Source verified and recorded. ${body.data.gaps.length} gate${body.data.gaps.length === 1 ? " remains" : "s remain"}.`);
+      setEvidenceClaim("");
+      setEvidenceExcerpt("");
+      setEvidenceUrl("");
+      setContactName("");
+      setContactRole("");
+    } catch (caught) {
+      setEvidenceNotice(caught instanceof Error ? caught.message : "The evidence could not be verified.");
+    } finally {
+      setVerifyingEvidence(false);
+    }
   }
 
   async function updateDraft(status: DraftStatus) {
@@ -276,8 +351,50 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                     </div>
                     <div className="gaps">
                       <strong>Verify before sending</strong>
-                      <ul>{selected.gaps.map((gap) => <li key={gap}>{gap}</li>)}</ul>
+                      {selected.gaps.length ? <ul>{selected.gaps.map((gap) => <li key={gap}>{gap}</li>)}</ul> : <p>All required qualification gates are verified.</p>}
                     </div>
+                    {view === "research" ? (
+                      <details className="evidence-review">
+                        <summary><Plus size={16} aria-hidden="true" /> Verify public evidence</summary>
+                        <form onSubmit={submitReviewedEvidence}>
+                          <p>The server re-fetches this page and saves evidence only when the exact excerpt is present.</p>
+                          <label className="field">
+                            <span>Evidence type</span>
+                            <select value={evidenceKind} onChange={(event) => setEvidenceKind(event.target.value as EvidenceKind)}>
+                              {evidenceKinds.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                            </select>
+                          </label>
+                          <label className="field">
+                            <span>Public source URL</span>
+                            <input type="url" value={evidenceUrl} onChange={(event) => setEvidenceUrl(event.target.value)} placeholder="https://company.com/about" required />
+                          </label>
+                          <label className="field">
+                            <span>Supported claim</span>
+                            <input value={evidenceClaim} onChange={(event) => setEvidenceClaim(event.target.value)} placeholder="The company is headquartered in Austin, Texas." minLength={5} maxLength={500} required />
+                          </label>
+                          <label className="field">
+                            <span>Exact source excerpt</span>
+                            <textarea value={evidenceExcerpt} onChange={(event) => setEvidenceExcerpt(event.target.value)} placeholder="Paste the exact sentence shown on the source page." minLength={20} maxLength={1000} required />
+                          </label>
+                          {evidenceKind === "contact" ? (
+                            <div className="evidence-review__contact">
+                              <label className="field">
+                                <span>Verified name</span>
+                                <input value={contactName} onChange={(event) => setContactName(event.target.value)} minLength={2} maxLength={160} required />
+                              </label>
+                              <label className="field">
+                                <span>Business role</span>
+                                <input value={contactRole} onChange={(event) => setContactRole(event.target.value)} placeholder="Chief Financial Officer" minLength={2} maxLength={160} required />
+                              </label>
+                            </div>
+                          ) : null}
+                          <button className="button button--primary" type="submit" disabled={verifyingEvidence} aria-busy={verifyingEvidence}>
+                            {verifyingEvidence ? "Verifying..." : "Verify and save evidence"}
+                          </button>
+                          {evidenceNotice ? <p className="notice" role="status">{evidenceNotice}</p> : null}
+                        </form>
+                      </details>
+                    ) : null}
                   </section>
 
                   <section className="draft-pane" aria-labelledby="draft-title">

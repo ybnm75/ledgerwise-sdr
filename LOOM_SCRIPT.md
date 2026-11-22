@@ -8,7 +8,7 @@ Open **Today**. Point out the task queue, demo-data label, provider status, and 
 
 ## 0:45–3:00 — Research and outreach
 
-Open **Research** and select a lead. Show the weighted score, source links, exact excerpts, and visible verification gaps. Explain that unknown revenue, headcount, or contacts are never guessed.
+Open **Research** and select a lead. Show the weighted score, source links, exact excerpts, and visible verification gaps. Open **Verify public evidence** and explain that a reviewer can supply an approved public source, but the server re-fetches it and accepts only an exact matching excerpt. Unknown facts are never guessed.
 
 Open **Outreach**. Show that incomplete research disables generation and approval instead of presenting a false success state. If a qualified lead is available, generate a draft, show its current evidence, edit it, and approve that exact revision. Explain that another edit makes it pending again and that delivery is restricted to the configured Resend sandbox recipient.
 
@@ -33,6 +33,6 @@ Open **Activity** and show the approval, ownership, suppression, reply, send, an
 
 ## 8:30–9:30 — Evidence and limitations
 
-State the verified results: 61 JavaScript/TypeScript tests plus five Python crawler tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, 20/20 local benchmark smoke cases, 150/150 LangSmith release cases, and a successful scheduled evidence run with safe rejection of unsupported records.
+State the verified results: 67 JavaScript/TypeScript tests plus five Python crawler tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, 20/20 local benchmark smoke cases, 150/150 LangSmith release cases, and a successful scheduled evidence run with safe rejection of unsupported records.
 
 Be explicit that the live provider checks, focused research ingestion, 150-case Groq/LangSmith release result, complete scheduled research run, and Calendar event-creation smoke test all pass. Finish with the zero-cost deployment architecture and the remaining demo-only limitations in `DEPLOYMENT.md`.
