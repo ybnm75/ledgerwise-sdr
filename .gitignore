@@ -13,6 +13,7 @@ __pycache__/
 .scrapy/
 .hallmark/screenshots/
 .hallmark/shots/
+.ui-smoke/
 local.db
 local.db-*
 Unscale AI Engineer Case Study.docx

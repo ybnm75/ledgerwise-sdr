@@ -15,6 +15,7 @@
     "research": "node --env-file-if-exists=.env.local scripts/research.mjs",
     "benchmark": "node --env-file-if-exists=.env.local --import tsx scripts/benchmark.ts",
     "benchmark:smoke": "node --env-file-if-exists=.env.local --import tsx scripts/benchmark.ts --smoke",
+    "ui:smoke": "node --env-file-if-exists=.env.local scripts/ui-smoke.mjs",
     "check": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

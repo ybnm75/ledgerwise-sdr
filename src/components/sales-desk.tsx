@@ -264,7 +264,9 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
       <a className="skip-link" href="#main">Skip to lead review</a>
       <header className="topbar">
         <a className="brand" href="#main" aria-label="Ledgerwise Sales Desk home">
-          Ledgerwise <span>Sales Desk</span>
+          <span className="brand__mark" aria-hidden="true"><Bot size={16} /></span>
+          <span className="brand__name">Ledgerwise</span>
+          <span className="brand__product">Sales Desk</span>
         </a>
         <div className="topbar__actions">
           <span className="policy-state" role="status"><ShieldCheck size={16} aria-hidden="true" /> Policy active</span>
@@ -282,6 +284,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
               key={item.id}
               type="button"
               onClick={() => setView(item.id)}
+              aria-current={view === item.id ? "page" : undefined}
             >
               <Icon size={17} aria-hidden="true" /> {item.label}
             </button>
@@ -356,7 +359,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                     </div>
                     <p>{selected.contactRole}, {selected.location}</p>
                   </div>
-                  <div className="score-block">
+                  <div className="score-block" aria-label={`Qualification score ${selected.score}, ${leadBand(selected)}`}>
                     <span className="fig">{selected.score}</span>
                     <small>{leadBand(selected)}</small>
                   </div>

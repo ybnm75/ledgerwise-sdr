@@ -26,9 +26,14 @@ export function BookingDesk() {
   const [notice, setNotice] = useState("");
 
   async function loadBookings() {
-    const response = await fetch("/api/calendar/bookings");
-    const body = await response.json();
-    if (response.ok) setBookings(body.data);
+    try {
+      const response = await fetch("/api/calendar/bookings");
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? "Bookings could not be loaded.");
+      setBookings(body.data);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Bookings could not be loaded.");
+    }
   }
 
   useEffect(() => {
@@ -123,7 +128,7 @@ export function BookingDesk() {
                 <label className="field"><span>Attendee name</span><input value={name} onChange={(event) => setName(event.target.value)} required /></label>
                 <label className="field"><span>Attendee email</span><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
                 <label className="field"><span>Attendee timezone</span><input value={timeZone} onChange={(event) => setTimeZone(event.target.value)} required /></label>
-                <button className="button button--primary" type="submit" disabled={loading || !selectedSlot}>Confirm selected time</button>
+                <button className="button button--primary" type="submit" disabled={loading || !selectedSlot} aria-busy={loading}>{loading ? "Confirming…" : "Confirm selected time"}</button>
               </form>
             </>
           ) : (
