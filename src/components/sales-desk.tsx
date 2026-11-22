@@ -166,7 +166,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
   }
 
   async function updateDraft(status: DraftStatus) {
-    if (!selected) return;
+    if (!selected) return false;
     setNotice("Saving…");
     try {
       const response = await fetch(`/api/leads/${selected.id}`, {
@@ -183,10 +183,22 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
       );
       setNotice(status === "approved"
         ? "Draft approved and recorded. Demo delivery is now available."
-        : "Draft rejected and recorded in the audit ledger.");
+        : status === "rejected"
+          ? "Draft rejected and recorded in the audit ledger."
+          : "Draft revision saved and is waiting for approval.");
+      return true;
     } catch (caught) {
       setNotice(caught instanceof Error ? caught.message : "The update was not saved.");
+      return false;
     }
+  }
+
+  async function toggleEditing() {
+    if (!editing) {
+      setEditing(true);
+      return;
+    }
+    if (await updateDraft("pending")) setEditing(false);
   }
 
   function updateBody(body: string) {
@@ -237,7 +249,9 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "The email was not sent.");
-      setNotice("Email sent and recorded in the audit ledger.");
+      setNotice(body.duplicate
+        ? "This exact approved revision was delivered earlier. No duplicate email was sent."
+        : "Email sent and recorded in the audit ledger.");
     } catch (caught) {
       setNotice(caught instanceof Error ? caught.message : "The email was not sent.");
     } finally {
@@ -499,7 +513,7 @@ export function SalesDesk({ initialLeads }: { initialLeads: Lead[] }) {
                       <button className="button button--danger" type="button" onClick={() => updateDraft("rejected")}>
                         <X size={16} aria-hidden="true" /> Reject
                       </button>
-                      <button className="button button--quiet" type="button" onClick={() => setEditing((current) => !current)}>
+                      <button className="button button--quiet" type="button" onClick={toggleEditing}>
                         <Pencil size={16} aria-hidden="true" /> {editing ? "Finish editing" : "Edit draft"}
                       </button>
                       {selected.draft.status !== "approved" ? (
