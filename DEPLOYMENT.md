@@ -42,7 +42,9 @@ Enable Zero Data Retention in Groq Data Controls. This free tier is suitable for
 
 ## 4. Firecrawl
 
-Create the no-card free key and add `FIRECRAWL_API_KEY` to GitHub Actions. The code stops at 200 credits per run. Trigger the research workflow manually once before enabling the weekly schedule.
+Scrapy is installed directly in GitHub Actions from `requirements-research.txt`; it requires no account or subscription. It respects robots.txt, remains inside each company domain, throttles requests, and captures at most eight evidence-rich pages per company.
+
+Create the no-card Firecrawl key and add `FIRECRAWL_API_KEY` to GitHub Actions as a fallback for JavaScript-only sites. The code stops at 200 credits per run. Trigger the research workflow manually once before enabling the weekly schedule.
 
 ## 5. Google Calendar
 

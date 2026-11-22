@@ -9,7 +9,7 @@ GitHub Actions                    Vercel
           |                                  |
           +---------------- Turso -----------+
                               |
-          Groq · Firecrawl · Google Calendar · Resend sandbox · LangSmith
+          Scrapy · Groq · Firecrawl fallback · Google Calendar · Resend sandbox · LangSmith
 ```
 
 Vercel serves the application and synchronous APIs. Long research runs execute in GitHub Actions. Turso is the durable source of truth; a file database is rejected on Vercel.
@@ -19,7 +19,7 @@ Vercel serves the application and synchronous APIs. Long research runs execute i
 1. Operator UI: task queues and evidence, not provider internals.
 2. Route handlers: authentication, origin checks, schema validation, and authorization.
 3. Policy core: deterministic approval, suppression, identity, pricing, confidence, and booking rules.
-4. Provider adapters: Groq, Firecrawl, Google Calendar, Resend sandbox, and LangSmith.
+4. Provider adapters: Scrapy, Groq, capped Firecrawl fallback, Google Calendar, Resend sandbox, and LangSmith.
 5. Persistence: migrations, immutable revisions, audit events, quota counters, and recovery states.
 
 ## Research pipeline
@@ -28,7 +28,8 @@ Vercel serves the application and synchronous APIs. Long research runs execute i
 schedule/manual trigger
   -> create research run
   -> deduplicate canonical domains
-  -> fetch at most three public pages
+  -> discover evidence-rich first-party pages with Scrapy
+  -> use Firecrawl only when readable pages remain insufficient
   -> reject private network targets
   -> structured evidence extraction
   -> verify excerpt occurs in captured text
@@ -38,7 +39,7 @@ schedule/manual trigger
 
 The model cannot directly qualify a company. It proposes structured evidence. Application code validates the source index and exact excerpt, then calculates the score from unique evidence classes.
 
-Mandatory qualification gates are ecommerce activity, US location, a current trigger, and a decision-maker. Revenue and employee evidence contribute to fit and remain explicit gaps when absent.
+Mandatory qualification gates are ecommerce activity, US location, a current trigger, a named decision-maker, and a verified scale signal. Scale can be supported by employee count, revenue, funding, store or warehouse expansion, customer or order volume, or quantified hiring activity. Every claim still requires an exact public-source excerpt; the model cannot infer scale.
 
 ## Outreach state machine
 
@@ -105,7 +106,7 @@ This shared account is intentionally limited to the case-study review. A real or
 
 ## Free-tier protection
 
-- Maximum 20 research companies and three pages each.
+- Maximum 20 research companies and eight Scrapy pages each; robots.txt, same-site boundaries, throttling, and a 12-page hard ceiling are enforced.
 - Maximum 200 Firecrawl credits per research run.
 - 900 internal Groq calls per 24-hour application window.
 - Weekly research plus one paced Monday benchmark schedule.
@@ -116,7 +117,8 @@ This shared account is intentionally limited to the case-study review. A real or
 ## Failure behavior
 
 - Missing Groq: nuanced messages hand off; drafting and research fail visibly.
-- Missing Firecrawl: research uses the public direct-fetch fallback where safe.
+- Missing Scrapy: research falls back to the capped Firecrawl or public direct-fetch path.
+- Missing Firecrawl: Scrapy remains the primary zero-cost discovery path.
 - Missing Google Calendar: availability and booking return configuration errors.
 - Missing Resend: no email is sent.
 - Missing Turso on Vercel: health is degraded and data operations fail.

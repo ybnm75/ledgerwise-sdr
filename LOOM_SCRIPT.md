@@ -33,6 +33,6 @@ Open **Activity** and show the approval, ownership, suppression, reply, send, an
 
 ## 8:30–9:30 — Evidence and limitations
 
-State the verified results: 54 automated tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, 20/20 local benchmark smoke cases, 150/150 LangSmith release cases, and a successful 17/20 scheduled evidence run with three safe rejections.
+State the verified results: 61 JavaScript/TypeScript tests plus five Python crawler tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, 20/20 local benchmark smoke cases, 150/150 LangSmith release cases, and a successful scheduled evidence run with safe rejection of unsupported records.
 
 Be explicit that the live provider checks, focused research ingestion, 150-case Groq/LangSmith release result, complete scheduled research run, and Calendar event-creation smoke test all pass. Finish with the zero-cost deployment architecture and the remaining demo-only limitations in `DEPLOYMENT.md`.

@@ -5,6 +5,7 @@ const weights: Record<Evidence["kind"], number> = {
   location: 15,
   size: 20,
   revenue: 15,
+  scale: 15,
   trigger: 20,
   contact: 10
 };

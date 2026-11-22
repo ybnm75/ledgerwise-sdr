@@ -22,7 +22,13 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-research.txt
       - run: npm ci
+      - run: python -m pip install -r requirements-research.txt
       - run: npm run db:migrate
       - run: npm run research
         env:
@@ -35,4 +41,6 @@ jobs:
           RESEARCH_TRIGGER: schedule
           RESEARCH_MAX_COMPANIES: 20
           RESEARCH_MAX_PAGES: 3
+          RESEARCH_MAX_SCRAPY_PAGES: 8
+          RESEARCH_SCRAPY_ENABLED: 1
           RESEARCH_MAX_FIRECRAWL_CREDITS: 200

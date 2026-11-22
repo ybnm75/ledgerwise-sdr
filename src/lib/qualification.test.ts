@@ -17,6 +17,10 @@ describe("qualification", () => {
     expect(scoreEvidence([evidence("commerce"), evidence("commerce"), evidence("trigger")])).toBe(40);
   });
 
+  it("counts a verified scale signal", () => {
+    expect(scoreEvidence([evidence("commerce"), evidence("location"), evidence("scale")])).toBe(50);
+  });
+
   it("maps thresholds to review bands", () => {
     expect(qualificationBand(80)).toBe("Strong fit");
     expect(qualificationBand(60)).toBe("Review");

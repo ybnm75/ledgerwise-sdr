@@ -3,7 +3,7 @@ export type DraftStatus = "pending" | "approved" | "rejected";
 
 export type Evidence = {
   id: string;
-  kind: "commerce" | "location" | "size" | "revenue" | "trigger" | "contact";
+  kind: "commerce" | "location" | "size" | "revenue" | "scale" | "trigger" | "contact";
   claim: string;
   quote: string;
   url: string;

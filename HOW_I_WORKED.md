@@ -20,7 +20,7 @@ The resulting system keeps consequential decisions deterministic:
 
 - **Application:** Next.js 16 and TypeScript in one Vercel-compatible project.
 - **Database:** LibSQL locally and Turso in production, with six additive SQL migrations.
-- **Research:** Firecrawl v2 with a constrained direct-HTTP fallback, followed by Groq strict-schema extraction and exact-excerpt validation.
+- **Research:** robots-aware, same-site Scrapy discovery with constrained Firecrawl/direct-HTTP fallbacks, followed by Groq strict-schema extraction, exact-excerpt validation, and deterministic trigger/scale checks.
 - **Drafting and replies:** Groq strict-schema output behind deterministic pre- and post-model policy checks.
 - **Email:** Resend sandbox, restricted server-side to one configured test recipient.
 - **Calendar:** Google Calendar OAuth, free/busy lookup, deterministic business-hour slot calculation, and a final availability recheck before insertion.
@@ -37,7 +37,7 @@ Public sources also could not reliably prove revenue, headcount, and named conta
 
 ## Validation performed
 
-- 54 automated tests pass across authentication, qualification, route contracts, provider parsing, policy, evidence freshness, email gating, and calendar behavior.
+- 61 JavaScript/TypeScript tests and five Python crawler tests pass across authentication, qualification, route contracts, provider parsing, policy, evidence freshness, email gating, calendar behavior, page selection, and same-site crawling.
 - All six migrations apply to a fresh in-memory database.
 - TypeScript and the optimized Next.js production build pass.
 - The local 20-case benchmark smoke suite passes 20/20.
@@ -45,11 +45,11 @@ Public sources also could not reliably prove revenue, headcount, and named conta
 - Runtime smoke tests verified login protection, signed sessions, persistent threads, suppression, ownership, and safe reply routing.
 - Missing production credentials fail closed rather than simulating success.
 
-Turso persistence, Groq strict output, Firecrawl research ingestion, Resend delivery, Google Calendar availability, and LangSmith authentication have been verified with the free provider accounts. The Groq-backed 150-case experiment passed every case, and a focused research run persisted exact-match evidence successfully; the Calendar event-creation smoke test remains pending. No provider result is claimed without evidence.
+Turso persistence, Groq strict output, Scrapy and Firecrawl research ingestion, Resend delivery, Google Calendar availability and event creation, and LangSmith authentication have been verified with the free provider accounts. The Groq-backed 150-case experiment passed every case, and focused research runs persisted exact-match evidence successfully. No provider result is claimed without evidence.
 
 ## Cost and privacy
 
-Current cash spend is **$0**. The target configuration uses free tiers for Vercel, Turso, Groq, Firecrawl, Resend sandbox, Google Calendar, GitHub Actions, and LangSmith Developer. This is appropriate for the case-study workload, not an unlimited production SLA.
+Current cash spend is **$0**. The target configuration uses open-source Scrapy and free tiers for Vercel, Turso, Groq, Firecrawl, Resend sandbox, Google Calendar, GitHub Actions, and LangSmith Developer. This is appropriate for the case-study workload, not an unlimited production SLA.
 
 The LangSmith dataset contains only synthetic benchmark messages. The repository contains no provider secrets, invented customer emails, or private prospect conversations. A real commercial rollout would require organization-level authentication, jurisdiction-specific outreach review, data-processing agreements, monitoring, and a paid-capacity decision.
 

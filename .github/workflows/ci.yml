@@ -18,7 +18,14 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-research.txt
       - run: npm ci
+      - run: python -m pip install -r requirements-research.txt
+      - run: python -m unittest discover -s scripts -p "test_*.py"
       - run: npm run db:migrate
       - run: npm run check
       - run: npm run benchmark:smoke

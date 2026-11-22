@@ -8,6 +8,9 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 .vercel/
+.venv-research/
+__pycache__/
+.scrapy/
 .hallmark/screenshots/
 .hallmark/shots/
 local.db

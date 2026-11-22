@@ -22,12 +22,14 @@ Inbound demo reply -> hard rules -> structured Groq decision -> reply / handoff 
                        suppression                     audit event
 ```
 
+Scheduled research uses free, robots-aware Scrapy discovery for first-party leadership, press, location, hiring, and company pages. Firecrawl is retained only as a capped fallback for JavaScript-only content. Qualification requires exact excerpts for ecommerce activity, US location, a current trigger, a named decision-maker, and a verified scale signal.
+
 ## What is implemented
 
 - Versioned SQL migrations and durable LibSQL/Turso persistence.
 - Signed HTTP-only reviewer sessions, origin checks, login throttling, and security headers.
-- Weekly/manual GitHub Actions research pipeline capped at 20 companies, three pages per company, and 200 Firecrawl credits.
-- Firecrawl v2 with a direct-fetch fallback and private-network/SSRF rejection.
+- Weekly/manual GitHub Actions research pipeline capped at 20 companies, eight Scrapy pages per company, and 200 fallback Firecrawl credits.
+- Robots-aware, same-site Scrapy discovery with capped Firecrawl and direct-fetch fallbacks.
 - Groq strict-schema extraction; excerpts are stored only when they occur in the captured source text.
 - Deterministic qualification with mandatory evidence gates and visible gaps.
 - Immutable outreach revisions; editing changes the content hash and requires a new approval.
@@ -52,7 +54,7 @@ The repository includes 30 real-company candidates as a reproducible fallback. T
 | Repository, CI, schedules | GitHub Free and Actions |
 | Database | Turso Free |
 | Model | Groq Free Tier (`openai/gpt-oss-20b`) |
-| Web extraction | Firecrawl Free Tier plus direct HTTP fallback |
+| Web extraction | Open-source Scrapy plus capped Firecrawl/direct HTTP fallback |
 | Calendar | Google Calendar API |
 | Test delivery | Resend Free sandbox |
 | Evaluation | LangSmith Developer |
@@ -90,7 +92,7 @@ Copy [.env.example](./.env.example). Production requires durable Turso credentia
 
 Current credential-free result:
 
-- 54 unit, route-integration, and policy tests pass.
+- 61 JavaScript/TypeScript tests and five Python crawler tests pass.
 - All six migrations apply to an empty in-memory database.
 - TypeScript passes.
 - The optimized Next.js production build passes.
