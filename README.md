@@ -2,6 +2,10 @@
 
 An audit-first AI SDR workspace for the Unscale AI Engineer case study. It researches ecommerce companies on a schedule, qualifies them with visible evidence, drafts grounded outreach, supervises replies, stops contact immediately, and books against a real calendar while keeping a salesperson in control.
 
+- **Live platform:** https://ledgerwise-sdr.vercel.app
+- **Public repository:** https://github.com/ybnm75/ledgerwise-sdr
+- **Reviewer access:** share `APP_PASSWORD` privately in the submission email; never commit it.
+
 ## Product boundary
 
 - First outreach always requires human approval.
@@ -11,15 +15,27 @@ An audit-first AI SDR workspace for the Unscale AI Engineer case study. It resea
 
 ## Workflow
 
-```text
-Scheduled research -> exact source excerpts -> deterministic qualification
-                                              |
-                                              v
-Grounded draft -> edit/reject/approve exact revision -> sandbox delivery
-                                              |
-Inbound demo reply -> hard rules -> structured Groq decision -> reply / handoff / scheduling
-                           |                                |
-                       suppression                     audit event
+```mermaid
+flowchart LR
+  A[GitHub scheduled research] --> B[Scrapy + capped fallback]
+  B --> C[Exact source excerpts]
+  C --> D[Deterministic qualification]
+  D --> E[Bounded SDR agent]
+  E --> F[Grounded draft revision]
+  F --> G{Human decision}
+  G -->|Edit| F
+  G -->|Reject| H[Audit ledger]
+  G -->|Approve exact revision| I[Resend sandbox]
+  J[Demo prospect reply] --> K[Rules-first policy]
+  K -->|Safe and confident| L[Structured Groq reply]
+  K -->|Stop| M[Durable suppression]
+  K -->|Risk or uncertainty| N[Human takeover]
+  K -->|Booking intent| O[Google free/busy + event]
+  I --> H
+  L --> H
+  M --> H
+  N --> H
+  O --> H
 ```
 
 Scheduled research uses free, robots-aware Scrapy discovery for first-party leadership, press, location, hiring, and company pages. Firecrawl is retained only as a capped fallback for JavaScript-only content. Qualification requires exact excerpts for ecommerce activity, US location, a current trigger, a named decision-maker, and a verified scale signal.
@@ -45,7 +61,7 @@ When public crawling cannot establish a gate, the Research workspace includes a 
 
 ## Honest current state
 
-Local and production provider checks have verified Turso migrations, Groq strict JSON output, Firecrawl-backed research ingestion, Google Calendar booking and invitation delivery, Resend sandbox delivery, and LangSmith authentication. The Groq-backed LangSmith release experiment passed 150/150 cases. The first complete scheduled research run processed 20 companies, accepted 17 evidence-backed records, and safely rejected three unsupported records.
+Local and production provider checks have verified Turso migrations, Groq strict JSON output, Scrapy/Firecrawl research ingestion, Google Calendar booking and invitation delivery, Resend sandbox delivery, and LangSmith authentication. The Groq-backed LangSmith release experiment passed 150/150 cases. The complete 30-company candidate corpus was processed: 29 companies produced durable exact-source evidence and one was safely rejected because the captured pages did not establish ecommerce activity. The current durable set contains one qualified lead and 28 records that remain visibly in review rather than being guessed into qualification.
 
 The repository includes 30 real-company candidates as a reproducible fallback. They are not automatically labeled qualified: missing location, current trigger, scale, or decision-maker evidence remains visible until verified.
 
@@ -85,6 +101,7 @@ npm run research         # Run capped research pipeline; provider keys required
 npm run benchmark:smoke  # 20 deterministic safety cases
 npm run benchmark       # Complete paced 150-case LangSmith evaluation
 npm run check            # TypeScript, unit tests, production build
+npm run ui:smoke         # Authenticated desktop/mobile browser verification
 ```
 
 ## Environment
@@ -101,9 +118,10 @@ Current credential-free result:
 - The optimized Next.js production build passes.
 - The deterministic benchmark passes 20/20 cases.
 - Dependency audit reports zero known vulnerabilities.
+- Headless desktop/mobile verification signs in, opens all six desks, checks accessible control names, layout overflow, action ordering, console errors, and HTTP 5xx responses.
 - Authentication smoke test: unauthenticated 401, signed login cookie, protected 200.
 - Conversation smoke test: bot disclosure, suppression, human takeover, and handoff all pass.
 
 The 150-case LangSmith release result, focused research smoke test, complete scheduled research run, and production calendar flow pass.
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md), [BENCHMARK.md](./BENCHMARK.md), [DEPLOYMENT.md](./DEPLOYMENT.md), [HOW_I_WORKED.md](./HOW_I_WORKED.md), and [LOOM_SCRIPT.md](./LOOM_SCRIPT.md).
+See [SUBMISSION.md](./SUBMISSION.md), [ARCHITECTURE.md](./ARCHITECTURE.md), [BENCHMARK.md](./BENCHMARK.md), [DEPLOYMENT.md](./DEPLOYMENT.md), [HOW_I_WORKED.md](./HOW_I_WORKED.md), and [LOOM_SCRIPT.md](./LOOM_SCRIPT.md).

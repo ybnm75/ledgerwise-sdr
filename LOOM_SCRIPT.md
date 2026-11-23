@@ -4,7 +4,7 @@
 
 “Ledgerwise Sales Desk researches ecommerce brands, prepares evidence-grounded outreach, supervises replies, and books calls while keeping consequential actions under explicit policy.”
 
-Open **Today**. Point out the task queue, demo-data label, provider status, and the distinction between local proof and pending live-provider verification.
+Open the live URL and sign in. On **Today**, point out the human-decision queue, policy-active state, and the explicit demonstration boundary.
 
 ## 0:45–3:00 — Research and outreach
 
@@ -35,6 +35,6 @@ Open **Activity** and show the approval, ownership, suppression, reply, send, an
 
 ## 8:30–9:30 — Evidence and limitations
 
-State the verified results: 74 JavaScript/TypeScript tests plus five Python crawler tests, successful production build, six fresh migrations, zero known dependency vulnerabilities, 20/20 local benchmark smoke cases, 150/150 LangSmith release cases, and a successful scheduled evidence run with safe rejection of unsupported records.
+State the verified results: 74 JavaScript/TypeScript tests plus five Python crawler tests, successful production build, six fresh migrations, zero known production dependency vulnerabilities, 20/20 local benchmark smoke cases, 150/150 LangSmith release cases, and automated desktop/mobile production verification across all six desks.
 
-Be explicit that the live provider checks, focused research ingestion, 150-case Groq/LangSmith release result, complete scheduled research run, and Calendar event-creation smoke test all pass. Finish with the zero-cost deployment architecture and the remaining demo-only limitations in `DEPLOYMENT.md`.
+Be explicit that all 30 named research candidates were processed: 29 have durable exact-source evidence, while one was safely rejected because ecommerce activity was not supported. Show Nulo as the qualified example, then finish with the zero-cost deployment architecture and the remaining demo-only limitations in `DEPLOYMENT.md`.

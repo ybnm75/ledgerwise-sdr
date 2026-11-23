@@ -1,6 +1,6 @@
 # Ledgerwise delivery plan
 
-## Delivered locally
+## Delivered and deployed
 
 - Authenticated operator workspace with Today, Research, Outreach, Conversations, Bookings, and Activity views.
 - Scheduled 30-company research pipeline with source validation and deterministic qualification.
@@ -23,12 +23,12 @@
 - All tests, type checks, build, dependency audit, and benchmark safety gates pass.
 - Actual project cash spend remains $0.
 
-## Production path
+## Production evidence
 
-1. Create the free-tier provider projects and add secrets using `DEPLOYMENT.md`.
-2. Push the reviewed repository to GitHub.
-3. Run Turso migrations, research, both LangSmith benchmark shards, and the combined release report.
-4. Import the GitHub repository into Vercel and deploy from `main`.
-5. Complete every production smoke-test item before sharing the reviewer URL.
+1. Free-tier provider projects and secrets are configured without paid overages.
+2. The reviewed public repository deploys automatically from `main`.
+3. Turso migrations, the 30-company research corpus, and the 150-case LangSmith release benchmark have run successfully.
+4. Vercel serves the authenticated application at `https://ledgerwise-sdr.vercel.app`.
+5. Local and production browser smoke tests cover authentication, all six desks, accessibility names, responsive overflow, console errors, and HTTP failures.
 
-The remaining work is provider configuration and live verification, not unimplemented application logic. Production integrations never fall back to fake success.
+The remaining tasks are the applicant-owned Loom recording, unedited Codex session export, and submission email listed in `SUBMISSION.md`. Production integrations never fall back to fake success.
