@@ -54,7 +54,7 @@ Create a dedicated demo calendar and Google Cloud OAuth client. Enable the Calen
 - `GOOGLE_CLIENT_SECRET`
 - `GOOGLE_REFRESH_TOKEN`
 - `GOOGLE_CALENDAR_ID`
-- `GOOGLE_CALENDAR_TIME_ZONE=America/New_York`
+- `GOOGLE_CALENDAR_TIME_ZONE=Africa/Algiers`
 
 Use a dedicated demo calendar rather than a personal calendar. Do not enable paid quota increases.
 

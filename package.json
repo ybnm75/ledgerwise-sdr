@@ -16,6 +16,9 @@
     "benchmark": "node --env-file-if-exists=.env.local --import tsx scripts/benchmark.ts",
     "benchmark:smoke": "node --env-file-if-exists=.env.local --import tsx scripts/benchmark.ts --smoke",
     "ui:smoke": "node --env-file-if-exists=.env.local scripts/ui-smoke.mjs",
+    "demo:narration": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/generate-demo-narration.ps1",
+    "demo:record": "node --env-file-if-exists=.env.local scripts/record-demo.mjs",
+    "demo:validate": "node scripts/validate-demo-video.mjs",
     "check": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

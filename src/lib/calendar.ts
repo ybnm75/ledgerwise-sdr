@@ -40,13 +40,17 @@ type CalendarRules = {
 };
 
 const defaultRules: CalendarRules = {
-  timeZone: process.env.GOOGLE_CALENDAR_TIME_ZONE || "America/New_York",
+  timeZone: process.env.GOOGLE_CALENDAR_TIME_ZONE || "Africa/Algiers",
   workdayStartMinutes: 9 * 60,
   workdayEndMinutes: 17 * 60,
   durationMinutes: 30,
   bufferMinutes: 15,
   minimumNoticeMinutes: 24 * 60
 };
+
+export function calendarHostTimeZone() {
+  return defaultRules.timeZone;
+}
 
 function calendarConfig() {
   const values = {

@@ -86,7 +86,7 @@ intent -> free/busy -> calculated slots -> selected slot
                                       -> confirmed database record
 ```
 
-Slots are calculated in `America/New_York` using weekdays, 09:00–17:00 hours, 30-minute duration, 15-minute buffers, and 24-hour minimum notice. All stored instants are UTC. Google Calendar is rechecked immediately before event creation. Confirmation requires a provider event ID.
+Slots are calculated in `Africa/Algiers` using weekdays, 09:00–17:00 hours, 30-minute duration, 15-minute buffers, and 24-hour minimum notice. All stored instants are UTC. Google Calendar is rechecked immediately before event creation. Confirmation requires a provider event ID.
 
 ## Data model
 

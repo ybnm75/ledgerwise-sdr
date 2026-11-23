@@ -1,5 +1,21 @@
 # Loom walkthrough script (under 10 minutes)
 
+## Automated recording
+
+Generate a safe, read-only, narrated walkthrough of the deployed application:
+
+```powershell
+npm.cmd run demo:record
+```
+
+The command uses `APP_PASSWORD` from `.env.local`, navigates every production desk without clicking consequential actions, generates local Windows narration, and writes the upload-ready file to:
+
+```text
+.demo-video/ledgerwise-loom-ready.mp4
+```
+
+The generated media directory is gitignored. Upload the MP4 to Loom, set link access to **Anyone with the link**, then paste the Loom URL into the submission.
+
 ## 0:00–0:45 — Product boundary
 
 “Ledgerwise Sales Desk researches ecommerce brands, prepares evidence-grounded outreach, supervises replies, and books calls while keeping consequential actions under explicit policy.”

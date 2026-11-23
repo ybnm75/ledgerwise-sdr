@@ -21,6 +21,7 @@ export function BookingDesk() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [timeZone, setTimeZone] = useState("UTC");
+  const [hostTimeZone, setHostTimeZone] = useState("Africa/Algiers");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -50,6 +51,7 @@ export function BookingDesk() {
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Availability could not be loaded.");
       setSlots(body.data);
+      setHostTimeZone(body.timeZone || "Africa/Algiers");
       setSelectedSlot(body.data[0] ?? "");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Availability could not be loaded.");
@@ -111,7 +113,7 @@ export function BookingDesk() {
           )}
         </section>
         <aside className="availability-panel" aria-labelledby="availability-title">
-          <div className="pane-heading"><h2 id="availability-title">Live availability</h2><span>America/New_York host</span></div>
+          <div className="pane-heading"><h2 id="availability-title">Live availability</h2><span>{hostTimeZone} host</span></div>
           {error ? <p className="form-error" role="alert">{error}</p> : null}
           {notice ? <p className="notice" role="status">{notice}</p> : null}
           {slots.length ? (

@@ -1,4 +1,4 @@
-import { getAvailableSlots } from "@/lib/calendar";
+import { calendarHostTimeZone, getAvailableSlots } from "@/lib/calendar";
 import { requireApiSession } from "@/lib/auth";
 
 export async function GET(request: Request) {
@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   if (auth.response) return auth.response;
   try {
     const slots = await getAvailableSlots();
-    return Response.json({ data: slots });
+    return Response.json({ data: slots, timeZone: calendarHostTimeZone() });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Calendar availability failed.";
     return Response.json({ error: message }, { status: 503 });
