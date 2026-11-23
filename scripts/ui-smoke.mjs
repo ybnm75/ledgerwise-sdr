@@ -110,6 +110,9 @@ try {
     await waitForText(expectedText);
   }
 
+  await clickButton("Bookings");
+  await waitForText("Africa/Algiers host");
+
   await clickButton("Research");
   const firstLead = await page.$(".lead-row");
   expect(Boolean(firstLead), "Research queue has no selectable lead.");
