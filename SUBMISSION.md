@@ -5,7 +5,7 @@
 - Live platform: https://ledgerwise-sdr.vercel.app
 - Public code: https://github.com/ybnm75/ledgerwise-sdr
 - Reviewer password: send the current `APP_PASSWORD` privately in the email; do not add it here or to GitHub.
-- Walkthrough: record the final Loom from [`LOOM_SCRIPT.md`](./LOOM_SCRIPT.md) and paste its URL in the email.
+- Walkthrough: https://www.loom.com/share/d26786f5283c4c5cb3a962c921b4a50a
 - AI session export: attach the original, unedited Codex session files from `%USERPROFILE%\.codex\sessions\`.
 
 ## Requirements traceability
@@ -22,10 +22,10 @@
 | Human-controlled daily platform | Today, Research, Outreach, Conversations, Bookings, and Activity desks; approve/edit/reject, takeover, and audit controls. | Met |
 | UI quality | Responsive semantic design system, accessible labels/focus states, status feedback, and automated desktop/mobile browser verification. | Met |
 | Live deployment | Vercel production health and authenticated six-desk browser smoke pass. | Met |
-| Public code | GitHub repository with CI, schedules, migrations, tests, architecture, benchmark, and runbook. The final documentation commit must still be pushed from the local branch. | Core code met; final push pending |
+| Public code | GitHub repository with CI, schedules, migrations, tests, architecture, benchmark, and runbook. The final documentation and production-verification commits are pushed to `main`. | Met |
 | HOW_I_WORKED.md | Tools, decisions, plan changes, AI mistakes, quantitative evaluation, costs, privacy, and next steps. | Met |
 | AI session export | Must be attached unedited from the local Codex sessions directory; it should not be committed to the public repository. | Human submission step |
-| Loom under 10 minutes | A timed script is ready in `LOOM_SCRIPT.md`; recording and uploading require the applicant. | Human submission step |
+| Loom under 10 minutes | The validated 4:43 walkthrough is uploaded publicly at the Loom URL above. | Met |
 
 ## Strict audit conclusion
 
@@ -36,7 +36,7 @@ It should not be described as having zero remaining gaps. The strict limitations
 1. The 30-company corpus was processed, but only 29 companies produced acceptable exact-source records and only Nulo currently passes every mandatory qualification gate.
 2. Reply handling is exercised through a persistent supervised Demo Inbox, not a verified real inbound-email webhook.
 3. The SDR agent is a bounded orchestration workflow rather than the deeper durable autonomous agent described as future work in `HOW_I_WORKED.md`.
-4. The Loom recording, unedited Codex export, private password delivery, submission email, and two-week uptime obligation are human-owned submission steps.
+4. The unedited Codex export, private password delivery, submission email, and two-week uptime obligation are human-owned submission steps.
 
 ## Quantitative evidence
 
@@ -61,7 +61,7 @@ Here is my completed AI Engineer case study:
 Live platform: https://ledgerwise-sdr.vercel.app
 Reviewer password: [paste privately here]
 Public repository: https://github.com/ybnm75/ledgerwise-sdr
-Loom walkthrough: [paste Loom URL here]
+Loom walkthrough: https://www.loom.com/share/d26786f5283c4c5cb3a962c921b4a50a
 
 I have attached the complete, unedited Codex session export. HOW_I_WORKED.md is included in the repository.
 
@@ -73,7 +73,7 @@ Ahmed
 
 ## Final human-only checklist
 
-- [ ] Record and upload the Loom using `LOOM_SCRIPT.md` (maximum 10 minutes).
+- [x] Record and upload the Loom using `LOOM_SCRIPT.md` (4:43, public link verified).
 - [ ] Export and attach every unedited Codex session file.
 - [ ] Paste the private reviewer password into the email.
 - [ ] Send the email and keep the Vercel deployment online for at least two weeks.
